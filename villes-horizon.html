@@ -362,6 +362,8 @@ video,#photoBg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover
     <label>Rejouer une photo</label><button type="button" id="btnPhoto">Ouvrir un fichier</button>
     <input type="file" id="photoFile" hidden>
     <span class="hint">Ouvrez une photo prise avec le téléphone, par le gestionnaire de fichiers pour garder ses métadonnées (une photo choisie dans la galerie perd sa position). L'appli se place à sa position GPS, dans sa direction et avec sa focale, et dessine ses calques par-dessus, comme sur place. Glissez pour corriger, « Caler auto » pour tester le calage. Rien n'est enregistré : à la sortie, votre calage, votre champ et votre position reviennent.</span>
+    <button type="button" id="btnBench" disabled>Tester le calage auto</button>
+    <span class="hint">Banc d'essai : calez d'abord la photo à la main (c'est la référence), puis lancez le test. L'appli repart de la référence volontairement décalée (cap ±4, ±8, ±12°, champ ±6°), lance « Caler auto » à chaque fois et mesure l'écart restant. Elle liste aussi les repères dont le calage peut se servir sur cette vue, et ceux qu'il ignore.</span>
     <span class="hint" id="photoInfo" style="display:block"></span>
   </div>
   </details>
@@ -431,7 +433,7 @@ const ENDPOINTS=['https://overpass.private.coffee/api/interpreter','https://maps
    OpenSky ; seuls les bateaux necessitent une cle. */
 const CONFIG=Object.assign({relay:''},window.APP_CONFIG||{});
 const CONFIG_LOADED=!!window.APP_CONFIG;
-const APP_VERSION='2026-10-24 (b) · Réglages > Test et simulation : rejouer une photo (position, direction et focale lues dans le fichier, calques dessinés dessus, calage testable) · 2026-10-24 · calage : boussole + gyroscope (retour a la boussole si le gyroscope saute) ; reperes vus seulement dans Caler auto ; lecture photo en option (3 s) · 2026-10-23 (d) · reglages ranges en sections depliables (aides derriere "?"), pastille de reglage rapide du rayon, croix de visee en option · 2026-10-23 (c) · bateaux : couleur par type et rond a l\'arret facon MarineTraffic, fiche au toucher avec liens MarineTraffic / VesselFinder (avions : ADS-B Exchange / Flightradar24) · 2026-10-23 (b) · avions et bateaux : placement des noms generique (sans chevauchement), memoire d\'appareil ; croix de visee en mode KML · 2026-10-23 · bateaux : message clair quand AISStream est muet · 2026-10-22 (d) · cap stabilisé au gyroscope, calage automatique continu sur les repères vus (cap + zoom), règle de la photo étendue aux lieux · 2026-10-22 (c) · visibilité d\'après la photo : on ne nomme que ce que la caméra voit (silhouette réelle), nom calé sur la pointe visible · 2026-10-22 (b) · un monument caché derrière un plus proche (même direction) passe en Tout voir · 2026-10-22 · Turin : monuments posés sur le relief devant eux, crêtes filtrées, sonde dans l\'axe, priorité à ce qu\'on voit (bâtiments hauts OSM), relief 200 km et sommets lointains, calage du zoom, sol/étage, position simulée · 2026-10-21 · relief : secours AWS par tuile (Italie / hors Mapterhorn) · 2026-10-21 · zoom au pincement, 5 miroirs Overpass, structure BD TOPO · 2026-10-21 · repères/tours OSM en tuiles + tours ANFR, crêtes intérieures du relief · 2026-10-12 · tours et mâts télécom : même base OSM que les repères hauts (mât sans hauteur/opérateur inclus) · 2026-10-11 · taille maximale des silhouettes de monuments (30 % de l\'écran) pour garder le nom visible de près ; 2026-10-10 · monuments proches toujours nets (15 plus proches ≤ 1,5 km), mâts TDF sans priorité et nets seulement s\'ils dépassent la crête, diagnostic d\'affichage dans les fiches, nom d\'usage des tours sans nom (commentaire OSM) ; 2026-10-09 (g) · couches perso : champs lus de tous les tableaux KML, liste numérotée dans l\'ordre du fichier (n°2 = champ #2 du diagnostic), stockage compact, jusqu\'à 60 000 points ; 2026-10-09 (f) · UX : bouton plein écran atteignable (barre du bas transparente aux touchers, outils sur 2 colonnes en paysage, cibles 44 px, accueil en paysage) ; couches perso : diagnostic de structure KMZ/KML sans contenu ; 2026-10-09 (e) · couches perso : champ KML au choix (10 premiers caractères) et recherche de site en gras ; 2026-10-09 (d) · couches perso KMZ/KML (locales), zones tactiles et toucher unifiés (pylônes regroupés) ; 2026-10-09 (c) · cache générique pour toutes les couches (mémoire, secours périmé, Recharger), tours TDF/télécom dans les monuments avec liens ; 2026-10-09 (b) · fiches de groupe génériques, repères hauts en violet + mémoire, calques défilants ; 2026-10-09 · monuments posés sur la ligne de relief ; 2026-10-08 (b) · monuments : tout Wikidata par tuile de 0,1° (sans filtre de classe), tri monuments / équipements urbains dans l\'appli, nouvelles icônes';
+const APP_VERSION='2026-10-25 (b) · Caler auto : d\'abord le soleil s\'il est dans l\'image (cap et horizon exacts), horizon lu sans le premier plan (parasols, palmiers, personnes) · 2026-10-25 · photo rejouée : direction des photos horizontales du Pixel corrigée (+90°), banc d\'essai du calage auto · 2026-10-24 (b) · Réglages > Test et simulation : rejouer une photo (position, direction et focale lues dans le fichier, calques dessinés dessus, calage testable) · 2026-10-24 · calage : boussole + gyroscope (retour a la boussole si le gyroscope saute) ; reperes vus seulement dans Caler auto ; lecture photo en option (3 s) · 2026-10-23 (d) · reglages ranges en sections depliables (aides derriere "?"), pastille de reglage rapide du rayon, croix de visee en option · 2026-10-23 (c) · bateaux : couleur par type et rond a l\'arret facon MarineTraffic, fiche au toucher avec liens MarineTraffic / VesselFinder (avions : ADS-B Exchange / Flightradar24) · 2026-10-23 (b) · avions et bateaux : placement des noms generique (sans chevauchement), memoire d\'appareil ; croix de visee en mode KML · 2026-10-23 · bateaux : message clair quand AISStream est muet · 2026-10-22 (d) · cap stabilisé au gyroscope, calage automatique continu sur les repères vus (cap + zoom), règle de la photo étendue aux lieux · 2026-10-22 (c) · visibilité d\'après la photo : on ne nomme que ce que la caméra voit (silhouette réelle), nom calé sur la pointe visible · 2026-10-22 (b) · un monument caché derrière un plus proche (même direction) passe en Tout voir · 2026-10-22 · Turin : monuments posés sur le relief devant eux, crêtes filtrées, sonde dans l\'axe, priorité à ce qu\'on voit (bâtiments hauts OSM), relief 200 km et sommets lointains, calage du zoom, sol/étage, position simulée · 2026-10-21 · relief : secours AWS par tuile (Italie / hors Mapterhorn) · 2026-10-21 · zoom au pincement, 5 miroirs Overpass, structure BD TOPO · 2026-10-21 · repères/tours OSM en tuiles + tours ANFR, crêtes intérieures du relief · 2026-10-12 · tours et mâts télécom : même base OSM que les repères hauts (mât sans hauteur/opérateur inclus) · 2026-10-11 · taille maximale des silhouettes de monuments (30 % de l\'écran) pour garder le nom visible de près ; 2026-10-10 · monuments proches toujours nets (15 plus proches ≤ 1,5 km), mâts TDF sans priorité et nets seulement s\'ils dépassent la crête, diagnostic d\'affichage dans les fiches, nom d\'usage des tours sans nom (commentaire OSM) ; 2026-10-09 (g) · couches perso : champs lus de tous les tableaux KML, liste numérotée dans l\'ordre du fichier (n°2 = champ #2 du diagnostic), stockage compact, jusqu\'à 60 000 points ; 2026-10-09 (f) · UX : bouton plein écran atteignable (barre du bas transparente aux touchers, outils sur 2 colonnes en paysage, cibles 44 px, accueil en paysage) ; couches perso : diagnostic de structure KMZ/KML sans contenu ; 2026-10-09 (e) · couches perso : champ KML au choix (10 premiers caractères) et recherche de site en gras ; 2026-10-09 (d) · couches perso KMZ/KML (locales), zones tactiles et toucher unifiés (pylônes regroupés) ; 2026-10-09 (c) · cache générique pour toutes les couches (mémoire, secours périmé, Recharger), tours TDF/télécom dans les monuments avec liens ; 2026-10-09 (b) · fiches de groupe génériques, repères hauts en violet + mémoire, calques défilants ; 2026-10-09 · monuments posés sur la ligne de relief ; 2026-10-08 (b) · monuments : tout Wikidata par tuile de 0,1° (sans filtre de classe), tri monuments / équipements urbains dans l\'appli, nouvelles icônes';
 const S={cross:false,gyro:true,photoVis:false,simOn:false,simPos:'',radius:60,camFov:67,hamlets:false,relief:true,reliefV1:false,obsHeight:0,showDist:true,filter:'',headOff:0,pitchOff:0,air:false,sea:false,airMax:120,seaMax:40,skyline:false,ridges:true,beyond:false,telecom:false,telecomMax:8,buildings:false,buildingsMax:12,chipsFold:false,
   layers:{places:true,monuments:true,equip:true,urban:false,urbClip:true,urbSmooth:true,urbFill:true},
   poi:{lighthouse:true,cape:true,rock:true,view:false,heritage:false,beach:false}};
@@ -4536,6 +4538,51 @@ function grabFrame(cw){
 let noteT=null;
 function note(msg,ms){ const n=$('note'); if(!n) return; n.textContent=msg; n.style.display='block'; clearTimeout(noteT); noteT=setTimeout(()=>{ n.style.display='none'; },ms||4500); }
 let aligning=false;
+// CALAGE SUR LE SOLEIL (25/10/2026) : gratuit, sans IA, au degre pres. La date, l'heure et la position donnent la direction exacte du soleil
+// (formules astronomiques usuelles, precision ~0,01°, refraction comprise). S'il est dans l'image (disque sature, compact), le cap ET
+// l'horizon s'en deduisent d'un coup. En direct : heure du telephone ; photo rejouee : heure de la prise de vue.
+function sunPos(t,lat,lon){
+  const d=t/86400000+2440587.5-2451545.0, g=(357.529+0.98560028*d)*D, q=280.459+0.98564736*d;
+  const L=(q+1.915*Math.sin(g)+0.020*Math.sin(2*g))*D, e=(23.439-0.00000036*d)*D;
+  const ra=Math.atan2(Math.cos(e)*Math.sin(L),Math.cos(L)), dec=Math.asin(Math.sin(e)*Math.sin(L));
+  const gmst=((18.697374558+24.06570982441908*d)%24+24)%24, Hh=(gmst*15+lon)*D-ra, p=lat*D;
+  const el=Math.asin(Math.sin(p)*Math.sin(dec)+Math.cos(p)*Math.cos(dec)*Math.cos(Hh))/D;
+  const az=Math.atan2(-Math.sin(Hh),Math.tan(dec)*Math.cos(p)-Math.sin(p)*Math.cos(Hh))/D;
+  const R=el>-1.5?1.02/Math.tan((el+10.3/(el+5.11))*D)/60:0;
+  return {az:(az+360)%360,el:el+R}; }
+const SUN_WIN=25; // le soleil n'est cherche que s'il doit etre dans l'image a +-SUN_WIN° pres (erreur de cap toleree)
+function sunAlign(){
+  if(!pos) return {ok:false,msg:'position inconnue'};
+  const t=photoMode?photoMode.utc:Date.now(); if(!t) return {ok:false,msg:'heure de la photo inconnue'};
+  const sp=sunPos(t,pos.lat,pos.lon), P=pose(), fh=(W/2)/Math.tan(vFov()/2*D), half=Math.atan((W/2)/fh)/D, vhalf=Math.atan((H/2)/fh)/D;
+  if(sp.el<-1) return {ok:false,msg:'soleil couché'};
+  if(Math.abs(wrap(sp.az-P.heading))>half+SUN_WIN||Math.abs(sp.el-P.pitch)>vhalf+SUN_WIN) return {ok:false,msg:'soleil hors du champ'};
+  const fr=grabFrameRGB(480); if(!fr) return {ok:false,msg:'image illisible'};
+  const {d,cw,ch}=fr, k=cw/W, mask=new Uint8Array(cw*ch); let n=0;
+  for(let i=0;i<cw*ch;i++){ const r=d[i*4],g=d[i*4+1],b=d[i*4+2]; if(r>=245&&g>=228&&b>=150){ mask[i]=1; n++; } }
+  if(!n) return {ok:false,msg:'pas de disque solaire net sur l\'image (voilé, nuages ?)'};
+  // taches lumineuses (composantes connexes) ; on garde les compactes, de taille plausible, la plus proche de la position attendue
+  const cr=Math.cos(P.roll*D), sr=Math.sin(P.roll*D), seen=new Uint8Array(cw*ch), blobs=[];
+  for(let s=0;s<cw*ch;s++){ if(!mask[s]||seen[s]) continue; const st=[s]; seen[s]=1; let a=0,sx=0,sy=0,x0=cw,x1=0,y0=ch,y1=0;
+    while(st.length){ const q=st.pop(), x=q%cw, y=(q/cw)|0; a++; sx+=x; sy+=y; if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y;
+      for(const nb of [q-1,q+1,q-cw,q+cw]) if(nb>=0&&nb<cw*ch&&!seen[nb]&&mask[nb]&&Math.abs(nb%cw-x)<=1){ seen[nb]=1; st.push(nb); } }
+    const bw=x1-x0+1, bh=y1-y0+1; if(a<3||a>cw*ch*0.06||Math.max(bw,bh)>3*Math.min(bw,bh)) continue; // reflet etire sur l'eau : ecarte
+    const X=sx/a/k-W/2, Y=sy/a/k-H/2, dxs=X*cr+Y*sr, dys=-X*sr+Y*cr; // ecran -> scene (roulis compense)
+    const az=P.heading+Math.atan(dxs/fh)/D, el=P.pitch-Math.atan(dys/fh)/D;
+    blobs.push({a,az,el,dist:Math.hypot(wrap(az-sp.az),el-sp.el)}); }
+  const b=blobs.filter(o=>o.dist<SUN_WIN*1.5).sort((x,y)=>x.dist-y.dist)[0];
+  if(!b) return {ok:false,msg:'pas de disque solaire là où il devrait être'};
+  return {ok:true,dh:wrap(sp.az-b.az),dp:sp.el-b.el,sun:sp}; }
+// LECTURE DE L'HORIZON NETTOYEE (25/10/2026) : une colonne ou la photo montre un objet NON-CIEL plus haut que le bord detecte (parasol,
+// palmier, personne, mat...) est un premier plan qui cache l'horizon lointain : on l'ecarte avant l'ajustement sur le relief.
+function cleanHorizonPts(pts,P,fh){
+  const fr=grabFrameRGB(240); if(!fr) return {pts,dropped:0};
+  const sk=observeSkyline(fr,P,fh); if(!sk.ok||!sk.cols.length) return {pts,dropped:0};
+  const cols=sk.cols.map(c=>({dd:wrap(c.brg-P.heading),a:c.a})).sort((x,y)=>x.dd-y.dd);
+  const out=pts.filter(p=>{ const dd=Math.atan((p.x-W/2)/fh)/D, e=P.pitch-Math.atan((p.y-H/2)/fh)/D;
+    let best=null; for(const c of cols){ if(!best||Math.abs(c.dd-dd)<Math.abs(best.dd-dd)) best=c; }
+    return !best||Math.abs(best.dd-dd)>1||best.a<=e+0.7; });
+  return {pts:out.length>=25?out:pts,dropped:out.length>=25?pts.length-out.length:0}; }
 async function runAutoAlign(){
   if(aligning) return 'calage deja en cours';
   if(!camReady()) return 'caméra indisponible';
@@ -4543,23 +4590,27 @@ async function runAutoAlign(){
   aligning=true;
   try{
     const staleTerrain=()=>!terrain||distBrg(pos,terrain.c).dist>0.3;
-    if(staleTerrain()){
+    if(staleTerrain()&&reliefState!=='indispo'){
       computeTerrain(false); // ne pas attendre la fin complete : le relief lointain, publie plus tot
       // par computeTerrain (voir 1re passe), suffit deja a un calage utile — on n'attend ici que lui,
       // pas le raffinement fin (proche) qui prend le plus de temps a charger
       const tw0=performance.now();
       while(staleTerrain()&&performance.now()-tw0<8000) await new Promise(r=>setTimeout(r,120));
     }
-    if(!terrain) return 'relief indisponible (réseau ?)';
+    // relief insuffisant (ville, horizon plat, peu de ciel) ou indisponible : on tente les reperes vus (tours, clochers, domes)
+    const viaLandmarks=why=>{ const L=landmarkAlign(); if(!L.ok) return `${why} · repères : ${L.msg}`;
+      noteCalib(); saveSettings(); const f=v=>(v>=0?'+':'')+v.toFixed(1)+'°';
+      const m=`calé sur ${L.names.slice(0,3).join(', ')} : cap ${f(L.corr)}${L.cam!==L.cam0?` · champ ${L.cam}°`:''}`; logNet('Calage',true,m); return m; };
+    // 1) le soleil, s'il est dans l'image : direction exacte, cap et horizon d'un coup
+    const SA=sunAlign();
+    if(SA.ok){ S.headOff+=SA.dh; S.pitchOff+=SA.dp; noteCalib(); saveSettings(); const f=v=>(v>=0?'+':'')+v.toFixed(1)+'°';
+      const m=`calé sur le soleil (${SA.sun.az.toFixed(1)}°, ${SA.sun.el.toFixed(1)}° de haut) : cap ${f(SA.dh)}, horizon ${f(SA.dp)}`; logNet('Calage',true,m); return m; }
+    if(!terrain) return viaLandmarks('relief indisponible');
     const P=pose(), cam0=S.camFov, fh=(W/2)/Math.tan(vFov()/2*D), tab=skyTable();
     let lo=90, hi=-90; const half=vFov()/2+22;
     for(let b=-half;b<=half;b+=1){ const e=skyAtT(tab,P.heading+b); if(e<lo) lo=e; if(e>hi) hi=e; }
     const fr=grabFrame(320); if(!fr) return 'image caméra illisible';
-    const pts=observeHorizon(fr,P,fh,lo-4,hi+4);
-    // relief insuffisant (ville, horizon plat, peu de ciel) : on tente les reperes vus (tours, clochers, domes)
-    const viaLandmarks=why=>{ const L=landmarkAlign(); if(!L.ok) return `${why} · repères : ${L.msg}`;
-      noteCalib(); saveSettings(); const f=v=>(v>=0?'+':'')+v.toFixed(1)+'°';
-      const m=`calé sur ${L.names.slice(0,3).join(', ')} : cap ${f(L.corr)}${L.cam!==L.cam0?` · champ ${L.cam}°`:''}`; logNet('Calage',true,m); return m; };
+    const CL=cleanHorizonPts(observeHorizon(fr,P,fh,lo-4,hi+4),P,fh), pts=CL.pts;
     if(pts.length<25) return viaLandmarks(`horizon peu visible (${pts.length} colonnes)`);
     const R=fitHorizon(pts,P,cam0,tab);
     if(R.cost>0.6) return viaLandmarks(`relief incertain (écart ${R.cost.toFixed(2)}°)`);
@@ -4567,7 +4618,7 @@ async function runAutoAlign(){
         const m=`horizon ${f(R.dp)} · cap calé sur ${lm.names.slice(0,3).join(', ')} ${f(lm.corr)}`; logNet('Calage',true,m); return m; } }
     S.headOff+=R.dh; S.pitchOff+=R.dp; noteCalib(); const camCh=R.cam!==cam0; if(camCh){ S.camFov=R.cam; $('fov').value=S.camFov; showFov(); } saveSettings();
     const f=v=>(v>=0?'+':'')+v.toFixed(1)+'°';
-    logNet('Calage',true,`${R.n} colonnes, relief ${R.relief.toFixed(1)}°, cap ${f(R.dh)}, horizon ${f(R.dp)}, champ ${S.camFov}° (${R.cam!==cam0?'ajusté':'fixe'}), ecart median ${R.cost.toFixed(2)}°`);
+    logNet('Calage',true,`${R.n} colonnes (${CL.dropped} au premier plan écartées), relief ${R.relief.toFixed(1)}°, cap ${f(R.dh)}, horizon ${f(R.dp)}, champ ${S.camFov}° (${R.cam!==cam0?'ajusté':'fixe'}), ecart median ${R.cost.toFixed(2)}°`);
     if(R.flat) return `horizon calé (${f(R.dp)}) · cap inchangé : pas assez de relief visible`;
     return `calé : cap ${f(R.dh)} · horizon ${f(R.dp)}${R.cam!==cam0?` · champ ${R.cam}°`:''} · précision ±${R.cost.toFixed(2)}°`;
   }catch(e){ return 'échec du calage : '+friendlyErr(e); }
@@ -4725,9 +4776,16 @@ function exifTiff(v,t){
       else if(type===5) val=cnt===1?rat(vo):Array.from({length:cnt},(_,k)=>rat(vo+8*k)); else if(type===1||type===7) val=v.getUint8(vo);
       out[tag]=val; } return out; };
   const i0=ifd(u32(t+4)), ex=i0[0x8769]?ifd(i0[0x8769]):{}, gps=i0[0x8825]?ifd(i0[0x8825]):{}, dms=a=>Array.isArray(a)?a[0]+a[1]/60+a[2]/3600:null;
-  const r={model:[i0[0x010F],i0[0x0110]].filter(Boolean).join(' '),date:ex[0x9003]||i0[0x0132]||'',f35:ex[0xA405]||null};
+  const r={make:i0[0x010F]||'',model:[i0[0x010F],i0[0x0110]].filter(Boolean).join(' '),orient:i0[0x0112]||1,date:ex[0x9003]||i0[0x0132]||'',f35:ex[0xA405]||null};
   if(gps[2]&&gps[4]){ r.lat=dms(gps[2])*(gps[1]==='S'?-1:1); r.lon=dms(gps[4])*(gps[3]==='W'?-1:1); }
   if(gps[0x11]!=null){ r.dir=gps[0x11]; r.dirRef=gps[0x10]; }
+  // heure UTC : date/heure GPS (UTC par definition), sinon heure locale + decalage enregistre (OffsetTimeOriginal), sinon heure locale du telephone
+  const dt=s=>{ const m=/^(\d{4})[:-](\d\d)[:-](\d\d)[ T](\d\d):(\d\d):(\d\d)/.exec(s||''); return m?m.slice(1).map(Number):null; };
+  const gd=/^(\d{4}):(\d\d):(\d\d)/.exec(gps[0x1D]||''), gt=gps[0x07];
+  if(gd&&Array.isArray(gt)){ r.utc=Date.UTC(+gd[1],+gd[2]-1,+gd[3],0,0,0)+((gt[0]*60+gt[1])*60+gt[2])*1000; r.timeSrc='GPS (UTC)'; }
+  else { const a=dt(r.date), off=/^([+-])(\d\d):(\d\d)/.exec(ex[0x9011]||ex[0x9010]||'');
+    if(a&&off){ r.utc=Date.UTC(a[0],a[1]-1,a[2],a[3],a[4],a[5])-(off[1]==='-'?-1:1)*(+off[2]*60+ +off[3])*60000; r.timeSrc='heure locale + décalage'; }
+    else if(a){ r.utc=new Date(a[0],a[1]-1,a[2],a[3],a[4],a[5]).getTime(); r.timeSrc='heure locale (fuseau du téléphone supposé)'; } }
   return r; }
 let lastGps=null;
 async function enterPhoto(f){
@@ -4741,17 +4799,21 @@ async function enterPhoto(f){
   photoMode={img,w,h:hh,url,backup,...(ex||{})};
   // focale equivalente 24x36 (definie sur la diagonale, 43,27 mm) -> angle du cote large de l'image = reglage "champ de la camera"
   if(ex&&ex.f35){ const dd=2*Math.atan(43.27/2/ex.f35); S.camFov=Math.round(2*Math.atan(Math.tan(dd/2)*Math.max(w,hh)/Math.hypot(w,hh))/D*2)/2; const fv=$('fov'); if(fv) fv.value=S.camFov; showFov(); }
-  S.headOff=ex&&ex.dir!=null?ex.dir:0; S.pitchOff=0; photoMode.dir0=S.headOff;
-  photoMode.dirTxt=ex&&ex.dir!=null?`photo ${Math.round(ex.dir)}°${ex.dirRef==='M'?' (magn.)':''}`:'photo inconnu';
-  stopCamera(); video.hidden=true; img.hidden=false; $('photoChip').hidden=false;
+  // 25/10/2026 (tes photos de Turin, toutes deux horizontales : direction enregistree 112° et 119°, vraie direction ~205° et ~200°) : le Pixel
+  // enregistre la direction du HAUT du telephone, pas de l'objectif ; tenu a l'horizontale, l'ecart est de 90° (orientation EXIF 1 : +90°,
+  // 3 : -90°). Correction appliquee aux photos Google horizontales, affichee dans le bandeau.
+  const dirCorr=ex&&ex.dir!=null&&/google/i.test(ex.make||'')?(ex.orient===1?90:ex.orient===3?-90:0):0;
+  S.headOff=ex&&ex.dir!=null?(ex.dir+dirCorr+360)%360:0; S.pitchOff=0; photoMode.dir0=S.headOff; photoMode.dirCorr=dirCorr;
+  photoMode.dirTxt=ex&&ex.dir!=null?`photo ${Math.round(ex.dir)}°${dirCorr?` ${dirCorr>0?'+':''}${dirCorr}° (photo horizontale) = ${Math.round(S.headOff)}°`:''}`:'photo inconnu';
+  stopCamera(); video.hidden=true; img.hidden=false; $('photoChip').hidden=false; $('btnBench').disabled=false;
   onNewPos(pos0.lat,pos0.lon,5); citiesVer++;
   const msg=`${ex&&ex.lat!=null?'position de la photo':'position simulée'} ${pos0.lat.toFixed(5)}, ${pos0.lon.toFixed(5)} · ${ex&&ex.dir!=null?'direction '+ex.dir.toFixed(0)+'°':'direction absente (0°) : glissez pour tourner'} · ${ex&&ex.f35?'focale '+ex.f35+' mm éq. → champ '+S.camFov+'°':'focale absente : champ inchangé'}${ex&&ex.model?' · '+ex.model:''}`;
-  info.textContent=msg; logNet('Photo rejouée',true,msg); $('sheet').classList.remove('open');
+  info.textContent=msg+(photoMode.utc?` · prise de vue ${new Date(photoMode.utc).toISOString().slice(0,16).replace('T',' ')} UTC (${photoMode.timeSrc})`:' · heure inconnue : pas de calage sur le soleil'); logNet('Photo rejouée',true,info.textContent); $('sheet').classList.remove('open');
   note('Photo rejouée : glissez pour corriger, « Caler auto » pour tester. Touchez le bandeau 📷 pour quitter.',6000);
 }
 function exitPhoto(){
   if(!photoMode) return; Object.assign(S,photoMode.backup); const fv=$('fov'); if(fv) fv.value=S.camFov; showFov();
-  URL.revokeObjectURL(photoMode.url); photoMode=null; const img=$('photoBg'); img.hidden=true; img.removeAttribute('src'); video.hidden=false; $('photoChip').hidden=true; $('photoInfo').textContent='';
+  URL.revokeObjectURL(photoMode.url); photoMode=null; const img=$('photoBg'); img.hidden=true; img.removeAttribute('src'); video.hidden=false; $('photoChip').hidden=true; $('photoInfo').textContent=''; $('btnBench').disabled=true;
   if(appStarted) startCamera();
   if(S.simOn&&parseLatLon(S.simPos)) applySimPos(); else if(lastGps) onNewPos(...lastGps);
   citiesVer++; logNet('Photo rejouée',true,'mode photo quitté : calage, champ et position rétablis');
@@ -4759,6 +4821,31 @@ function exitPhoto(){
 $('btnPhoto').onclick=()=>$('photoFile').click();
 $('photoFile').onchange=e=>{ const f=e.target.files[0]; e.target.value=''; if(f) enterPhoto(f); };
 $('photoChip').onclick=exitPhoto;
+// BANC D'ESSAI DU CALAGE AUTO (mode photo) : reference = calage a la main ; departs decales ; "Caler auto" (relief, puis reperes) a chaque fois.
+// Reussi : cap a moins de 1,5° et champ a moins de 3° de la reference. Refuse : calage inchange (prudent). Faux : corrige, mais a cote.
+async function photoBench(){
+  if(!photoMode) return; const b=$('btnBench'); b.disabled=true; const ref={h:S.headOff,p:S.pitchOff,c:S.camFov}, rows=[];
+  const P0=pose(), fh0=(W/2)/Math.tan(vFov()/2*D), usable=landmarksForCal({heading:P0.heading,fh:fh0}).map(o=>o.c);
+  const inView=monumentSites.filter(c=>c.cat!=='equip'&&c.dist!=null&&Math.abs(wrap(c.brg-P0.heading))<vFov()/2);
+  const why=c=>c.dist<0.15?'trop proche (< 150 m : position trop imprécise)':c.dist>20?'trop loin':S.relief&&terrain&&c.hidden?'caché par le relief':!(c.htWd||c.htOsm||/^(tour|clocher|dome)$/.test(c.type))?'ni tour, ni clocher, ni dôme, hauteur inconnue':Math.atan2((MON_W[c.type]||20)/2,c.dist*1000)/D>=1.5?'trop large vu d\'ici (pas une pointe)':c.far?'hors de portée':'';
+  const starts=[[-12,0],[-8,0],[-4,0],[4,0],[8,0],[12,0],[0,-6],[0,6],[-6,-6],[6,6]];
+  try{ for(const [dh,dc] of starts){ $('photoInfo').textContent=`banc d'essai : départ ${dh>=0?'+':''}${dh}° / champ ${dc>=0?'+':''}${dc}°…`;
+      S.headOff=ref.h+dh; S.pitchOff=ref.p; S.camFov=Math.max(20,Math.min(110,ref.c+dc)); citiesVer++; await new Promise(r=>setTimeout(r,80));
+      const msg=await runAutoAlign(), eh=wrap(S.headOff-ref.h), ec=S.camFov-ref.c, moved=Math.abs(eh-dh)>0.2||Math.abs(ec-dc)>0.2;
+      rows.push({dh,dc,eh,ec,msg,res:Math.abs(eh)<1.5&&Math.abs(ec)<3?'réussi':!moved?'refusé':'faux'}); } }
+  finally{ S.headOff=ref.h; S.pitchOff=ref.p; S.camFov=ref.c; const fv=$('fov'); if(fv) fv.value=S.camFov; showFov(); citiesVer++; b.disabled=false; }
+  const n=k=>rows.filter(r=>r.res===k).length, f=v=>(v>=0?'+':'')+v.toFixed(1)+'°', col={réussi:'#6FCF97',refusé:'#F2C14E',faux:'#E85A5A'};
+  const sum=`${n('réussi')} réussi(s), ${n('refusé')} refusé(s), ${n('faux')} faux sur ${rows.length}`;
+  $('photoInfo').textContent='banc d\'essai : '+sum; logNet('Banc d\'essai',!n('faux'),sum);
+  $('dbgTitle').textContent='Banc d\'essai du calage';
+  $('dbgBody').innerHTML=`<div class="dbgsec">Référence (calage à la main)</div><div class="dbgline">cap ${ref.h.toFixed(1)}° · horizon ${f(ref.p)} · champ ${ref.c}° · direction de la photo ${photoMode.dirTxt} → écart ${f(wrap(ref.h-photoMode.dir0))}</div>
+    <div class="dbgsec">Résultat : ${sum}</div>
+    <table style="width:100%;border-collapse:collapse;font:12px/1.4 var(--mono)"><tr style="color:#E0A526"><td>départ</td><td>reste</td><td>résultat</td></tr>${rows.map(r=>`<tr style="border-top:1px solid rgba(243,233,210,.15)"><td>cap ${f(r.dh)}<br>champ ${f(r.dc)}</td><td>cap ${f(r.eh)}<br>champ ${f(r.ec)}</td><td><b style="color:${col[r.res]}">${r.res}</b><br><span style="opacity:.7">${dEsc(r.msg)}</span></td></tr>`).join('')}</table>
+    <div class="dbgsec">Repères utilisables par le calage sur cette vue (${usable.length})</div><div class="dbgline">${usable.map(c=>`${dEsc(c.name)} (${dKm(c.dist)} km)`).join(' · ')||'aucun'}</div>
+    <div class="dbgsec">Monuments dans le champ ignorés par le calage</div><div class="dbgline">${inView.filter(c=>!usable.includes(c)).map(c=>`${dEsc(c.name)} : ${why(c)||'—'}`).join('<br>')||'aucun'}</div>`;
+  $('dbg').classList.add('open'); dbgOpen=false; clearInterval(dbgTimer); dbgTimer=null;
+}
+$('btnBench').onclick=()=>{ $('sheet').classList.remove('open'); photoBench(); };
 $('btnFold').addEventListener('click',()=>{ S.chipsFold=!S.chipsFold; document.querySelector('.chips').classList.toggle('folded',S.chipsFold); saveSettings(); });
 
 // ---------- photo ----------
