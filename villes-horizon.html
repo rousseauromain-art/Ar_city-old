@@ -23,7 +23,8 @@
 html,body{height:100%;background:var(--ink);color:var(--cream);font-family:var(--display);overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 #stage{position:fixed;inset:0;background:#000}
-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+video,#photoBg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#photoChip{pointer-events:auto;cursor:pointer;color:#FFD23F;border:1px solid rgba(255,210,63,.5);white-space:normal}
 #ov{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
 #safe{position:absolute;top:0;left:0;width:1px;height:var(--safe-t);visibility:hidden}
 
@@ -191,6 +192,7 @@ video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 <body>
 <div id="stage">
   <video id="cam" playsinline muted autoplay></video>
+  <img id="photoBg" alt="" hidden>
   <canvas id="ov"></canvas>
   <div id="safe"></div>
   <div class="chips" id="chips">
@@ -201,6 +203,7 @@ video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
     </div>
     <div id="radPop" class="chip" hidden><input type="range" id="radQ" min="10" max="200" step="5" value="60" aria-label="Rayon de recherche"></div>
     <div id="calib" class="chip"></div>
+    <div id="photoChip" class="chip" hidden></div>
     <div id="filt" class="chip"></div>
     <div id="note" class="chip"></div>
   </div>
@@ -355,6 +358,12 @@ video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
     <input type="text" id="simPos" placeholder="45.0805, 7.6705 (ou lien Google Maps)" style="width:100%">
     <span class="hint" id="simInfo">Pour revoir un lieu sans y être : collez des coordonnées (ou un lien de carte contenant @lat,lon). Le GPS est ignoré tant que la case est cochée ; tournez en glissant le doigt, la boussole reste active.</span>
   </div>
+  <div class="row">
+    <label>Rejouer une photo</label><button type="button" id="btnPhoto">Ouvrir un fichier</button>
+    <input type="file" id="photoFile" hidden>
+    <span class="hint">Ouvrez une photo prise avec le téléphone, par le gestionnaire de fichiers pour garder ses métadonnées (une photo choisie dans la galerie perd sa position). L'appli se place à sa position GPS, dans sa direction et avec sa focale, et dessine ses calques par-dessus, comme sur place. Glissez pour corriger, « Caler auto » pour tester le calage. Rien n'est enregistré : à la sortie, votre calage, votre champ et votre position reviennent.</span>
+    <span class="hint" id="photoInfo" style="display:block"></span>
+  </div>
   </details>
   <details class="grp" data-grp="apr"><summary><b>À propos</b><i class="gsum" id="sum_apr"></i></summary>
   <div class="row">
@@ -404,6 +413,11 @@ video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 (() => {
 const $ = id => document.getElementById(id);
 const video=$('cam'), ov=$('ov'), ctx=ov.getContext('2d');
+// REJOUER UNE PHOTO (24/10/2026) : la photo remplace le flux de la camera pour TOUT ce qui lit l'image (champ affiche, lecture du ciel,
+// calage auto, capture). Une seule source : camSrc().
+let photoMode=null;
+const camSrc=()=>photoMode?{el:photoMode.img,w:photoMode.w,h:photoMode.h}:{el:video,w:video.videoWidth,h:video.videoHeight};
+const camReady=()=>!!photoMode||camOK;
 const D=Math.PI/180;
 const FD=getComputedStyle(document.body).getPropertyValue('--display'), FM=getComputedStyle(document.body).getPropertyValue('--mono');
 const CARD=['N','NE','E','SE','S','SO','O','NO'];
@@ -417,7 +431,7 @@ const ENDPOINTS=['https://overpass.private.coffee/api/interpreter','https://maps
    OpenSky ; seuls les bateaux necessitent une cle. */
 const CONFIG=Object.assign({relay:''},window.APP_CONFIG||{});
 const CONFIG_LOADED=!!window.APP_CONFIG;
-const APP_VERSION='2026-10-24 · calage : boussole + gyroscope (retour a la boussole si le gyroscope saute) ; reperes vus seulement dans Caler auto ; lecture photo en option (3 s) · 2026-10-23 (d) · reglages ranges en sections depliables (aides derriere "?"), pastille de reglage rapide du rayon, croix de visee en option · 2026-10-23 (c) · bateaux : couleur par type et rond a l\'arret facon MarineTraffic, fiche au toucher avec liens MarineTraffic / VesselFinder (avions : ADS-B Exchange / Flightradar24) · 2026-10-23 (b) · avions et bateaux : placement des noms generique (sans chevauchement), memoire d\'appareil ; croix de visee en mode KML · 2026-10-23 · bateaux : message clair quand AISStream est muet · 2026-10-22 (d) · cap stabilisé au gyroscope, calage automatique continu sur les repères vus (cap + zoom), règle de la photo étendue aux lieux · 2026-10-22 (c) · visibilité d\'après la photo : on ne nomme que ce que la caméra voit (silhouette réelle), nom calé sur la pointe visible · 2026-10-22 (b) · un monument caché derrière un plus proche (même direction) passe en Tout voir · 2026-10-22 · Turin : monuments posés sur le relief devant eux, crêtes filtrées, sonde dans l\'axe, priorité à ce qu\'on voit (bâtiments hauts OSM), relief 200 km et sommets lointains, calage du zoom, sol/étage, position simulée · 2026-10-21 · relief : secours AWS par tuile (Italie / hors Mapterhorn) · 2026-10-21 · zoom au pincement, 5 miroirs Overpass, structure BD TOPO · 2026-10-21 · repères/tours OSM en tuiles + tours ANFR, crêtes intérieures du relief · 2026-10-12 · tours et mâts télécom : même base OSM que les repères hauts (mât sans hauteur/opérateur inclus) · 2026-10-11 · taille maximale des silhouettes de monuments (30 % de l\'écran) pour garder le nom visible de près ; 2026-10-10 · monuments proches toujours nets (15 plus proches ≤ 1,5 km), mâts TDF sans priorité et nets seulement s\'ils dépassent la crête, diagnostic d\'affichage dans les fiches, nom d\'usage des tours sans nom (commentaire OSM) ; 2026-10-09 (g) · couches perso : champs lus de tous les tableaux KML, liste numérotée dans l\'ordre du fichier (n°2 = champ #2 du diagnostic), stockage compact, jusqu\'à 60 000 points ; 2026-10-09 (f) · UX : bouton plein écran atteignable (barre du bas transparente aux touchers, outils sur 2 colonnes en paysage, cibles 44 px, accueil en paysage) ; couches perso : diagnostic de structure KMZ/KML sans contenu ; 2026-10-09 (e) · couches perso : champ KML au choix (10 premiers caractères) et recherche de site en gras ; 2026-10-09 (d) · couches perso KMZ/KML (locales), zones tactiles et toucher unifiés (pylônes regroupés) ; 2026-10-09 (c) · cache générique pour toutes les couches (mémoire, secours périmé, Recharger), tours TDF/télécom dans les monuments avec liens ; 2026-10-09 (b) · fiches de groupe génériques, repères hauts en violet + mémoire, calques défilants ; 2026-10-09 · monuments posés sur la ligne de relief ; 2026-10-08 (b) · monuments : tout Wikidata par tuile de 0,1° (sans filtre de classe), tri monuments / équipements urbains dans l\'appli, nouvelles icônes';
+const APP_VERSION='2026-10-24 (b) · Réglages > Test et simulation : rejouer une photo (position, direction et focale lues dans le fichier, calques dessinés dessus, calage testable) · 2026-10-24 · calage : boussole + gyroscope (retour a la boussole si le gyroscope saute) ; reperes vus seulement dans Caler auto ; lecture photo en option (3 s) · 2026-10-23 (d) · reglages ranges en sections depliables (aides derriere "?"), pastille de reglage rapide du rayon, croix de visee en option · 2026-10-23 (c) · bateaux : couleur par type et rond a l\'arret facon MarineTraffic, fiche au toucher avec liens MarineTraffic / VesselFinder (avions : ADS-B Exchange / Flightradar24) · 2026-10-23 (b) · avions et bateaux : placement des noms generique (sans chevauchement), memoire d\'appareil ; croix de visee en mode KML · 2026-10-23 · bateaux : message clair quand AISStream est muet · 2026-10-22 (d) · cap stabilisé au gyroscope, calage automatique continu sur les repères vus (cap + zoom), règle de la photo étendue aux lieux · 2026-10-22 (c) · visibilité d\'après la photo : on ne nomme que ce que la caméra voit (silhouette réelle), nom calé sur la pointe visible · 2026-10-22 (b) · un monument caché derrière un plus proche (même direction) passe en Tout voir · 2026-10-22 · Turin : monuments posés sur le relief devant eux, crêtes filtrées, sonde dans l\'axe, priorité à ce qu\'on voit (bâtiments hauts OSM), relief 200 km et sommets lointains, calage du zoom, sol/étage, position simulée · 2026-10-21 · relief : secours AWS par tuile (Italie / hors Mapterhorn) · 2026-10-21 · zoom au pincement, 5 miroirs Overpass, structure BD TOPO · 2026-10-21 · repères/tours OSM en tuiles + tours ANFR, crêtes intérieures du relief · 2026-10-12 · tours et mâts télécom : même base OSM que les repères hauts (mât sans hauteur/opérateur inclus) · 2026-10-11 · taille maximale des silhouettes de monuments (30 % de l\'écran) pour garder le nom visible de près ; 2026-10-10 · monuments proches toujours nets (15 plus proches ≤ 1,5 km), mâts TDF sans priorité et nets seulement s\'ils dépassent la crête, diagnostic d\'affichage dans les fiches, nom d\'usage des tours sans nom (commentaire OSM) ; 2026-10-09 (g) · couches perso : champs lus de tous les tableaux KML, liste numérotée dans l\'ordre du fichier (n°2 = champ #2 du diagnostic), stockage compact, jusqu\'à 60 000 points ; 2026-10-09 (f) · UX : bouton plein écran atteignable (barre du bas transparente aux touchers, outils sur 2 colonnes en paysage, cibles 44 px, accueil en paysage) ; couches perso : diagnostic de structure KMZ/KML sans contenu ; 2026-10-09 (e) · couches perso : champ KML au choix (10 premiers caractères) et recherche de site en gras ; 2026-10-09 (d) · couches perso KMZ/KML (locales), zones tactiles et toucher unifiés (pylônes regroupés) ; 2026-10-09 (c) · cache générique pour toutes les couches (mémoire, secours périmé, Recharger), tours TDF/télécom dans les monuments avec liens ; 2026-10-09 (b) · fiches de groupe génériques, repères hauts en violet + mémoire, calques défilants ; 2026-10-09 · monuments posés sur la ligne de relief ; 2026-10-08 (b) · monuments : tout Wikidata par tuile de 0,1° (sans filtre de classe), tri monuments / équipements urbains dans l\'appli, nouvelles icônes';
 const S={cross:false,gyro:true,photoVis:false,simOn:false,simPos:'',radius:60,camFov:67,hamlets:false,relief:true,reliefV1:false,obsHeight:0,showDist:true,filter:'',headOff:0,pitchOff:0,air:false,sea:false,airMax:120,seaMax:40,skyline:false,ridges:true,beyond:false,telecom:false,telecomMax:8,buildings:false,buildingsMax:12,chipsFold:false,
   layers:{places:true,monuments:true,equip:true,urban:false,urbClip:true,urbSmooth:true,urbFill:true},
   poi:{lighthouse:true,cape:true,rock:true,view:false,heritage:false,beach:false}};
@@ -493,7 +507,7 @@ function saveSettings(){
   clearTimeout(saveSettingsT);
   saveSettingsT=setTimeout(()=>{
     try{
-      const {cross,gyro,photoVis,simOn,simPos,radius,camFov,hamlets,relief,reliefV1,obsHeight,showDist,headOff,pitchOff,air,sea,airMax,seaMax,skyline,ridges,beyond,telecom,telecomMax,buildings,buildingsMax,chipsFold,poi,layers}=S;
+      const {cross,gyro,photoVis,simOn,simPos,radius,camFov,hamlets,relief,reliefV1,obsHeight,showDist,headOff,pitchOff,air,sea,airMax,seaMax,skyline,ridges,beyond,telecom,telecomMax,buildings,buildingsMax,chipsFold,poi,layers}=photoMode?{...S,...photoMode.backup}:S;
       localStorage.setItem(PKEY,JSON.stringify({cross,gyro,photoVis,simOn,simPos,radius,camFov,hamlets,relief,reliefV1,obsHeight,showDist,headOff,pitchOff,air,sea,airMax,seaMax,skyline,ridges,beyond,telecom,telecomMax,buildings,buildingsMax,chipsFold,poi,layers}));
     }catch(e){}
   },300);
@@ -642,6 +656,7 @@ window.addEventListener('deviceorientationabsolute',e=>onOrient(e,true));
 window.addEventListener('deviceorientation',e=>onOrient(e,e.absolute===true));
 
 function pose(){
+  if(photoMode) return {heading:((S.headOff%360)+360)%360,pitch:S.pitchOff,roll:0}; // photo : cap absolu tenu dans headOff (sauvegarde ecartee)
   if(!sensor) return {heading:(S.headOff+360)%360,pitch:S.pitchOff,roll:0};
   const g=gyroOn(), vv=g?svRel:sv, rr=g?srRel:sr;
   const n=Math.hypot(...vv)||1, v=vv.map(k=>k/n);
@@ -2891,7 +2906,7 @@ let W=0,H=0,dpr=1,safeT=0;
 // champ horizontal reellement affiche : l'image est recadree (object-fit: cover) et, en portrait,
 // la largeur de l'ecran correspond au petit cote du capteur -> environ 65° en paysage, 35° en portrait
 function vFovFor(camFov){
-  const vw=video.videoWidth, vh=video.videoHeight, tL=Math.tan(camFov/2*D);
+  const {w:vw,h:vh}=camSrc(), tL=Math.tan(camFov/2*D);
   if(!vw||!vh||!W||!H){ const r=W>H?0.93:0.52; return 2*Math.atan(tL*r)/D; } // repli avant le flux
   const tW=tL*(vw/Math.max(vw,vh)), sc=Math.max(W/vw,H/vh);
   return 2*Math.atan(tW*(W/sc)/vw)/D;
@@ -2939,7 +2954,7 @@ const BLD_ICON={tour:'mat',tour_telecom:'pylone',clocher:'clocher',chateau_eau:'
 let lastFrameT=0;
 function draw(ts){
   if(ts!=null&&ts-lastFrameT<32){ requestAnimationFrame(draw); return; } // plafond ~30 im/s
-  if(S.photoVis===true&&camOK&&!document.hidden&&Date.now()-photoT>PHOTO_EVERY){ photoT=Date.now(); try{ photoSkylineUpdate(); }catch(e){} }
+  if(S.photoVis===true&&camReady()&&!document.hidden&&Date.now()-photoT>PHOTO_EVERY){ photoT=Date.now(); try{ photoSkylineUpdate(); }catch(e){} }
   lastFrameT=ts||0;
   const {heading,pitch,roll}=pose();
   const FOVH=vFov(), fh=(W/2)/Math.tan(FOVH/2*D);
@@ -3576,7 +3591,7 @@ function draw(ts){
 
   // --- messages ---
   ctx.textAlign='center'; ctx.font=`500 15px ${FM}`;
-  const msg=camErr?camErr:!pos?'En attente du GPS…':!cities.length?'':!list.length?`Aucun lieu dans un rayon de ${S.radius} km`:!sensor?'Pas de boussole : glissez pour tourner':'';
+  const msg=camErr&&!photoMode?camErr:!pos?'En attente du GPS…':!cities.length?'':!list.length?`Aucun lieu dans un rayon de ${S.radius} km`:!sensor&&!photoMode?'Pas de boussole : glissez pour tourner':'';
   if(msg){ ctx.lineWidth=4; ctx.strokeStyle='rgba(14,26,43,.9)'; ctx.strokeText(msg,W/2,H*0.62); ctx.fillStyle='#F3E9D2'; ctx.fillText(msg,W/2,H*0.62); }
 
   // statut
@@ -3590,11 +3605,13 @@ function draw(ts){
   else if(/^liste int/.test(source)) issues.push('hors ligne : grandes villes seulement');
   else if(/^atlas/.test(source)) issues.push('hors ligne : lieux mémorisés');
   if(S.relief){ if(/^calcul/.test(reliefState)) issues.push('relief en calcul…'); else if(reliefState==='indispo') issues.push('relief indisponible'); }
-  if(pos&&!sensor) issues.push('pas de boussole');
+  if(pos&&!sensor&&!photoMode) issues.push('pas de boussole');
   const tr=(S.air&&tMsg.air?' · '+tMsg.air:'')+(S.sea&&tMsg.sea?' · '+tMsg.sea:'');
   setStatus(`${shown} lieux`+issues.map(t=>' · '+t).join('')+tr);
   const cal=$('calib');
-  if(S.headOff||S.pitchOff){ cal.style.display='block'; cal.innerHTML=`cap ${S.headOff>0?'+':''}${S.headOff.toFixed(0)}° · horizon ${S.pitchOff>0?'+':''}${S.pitchOff.toFixed(0)}°<b>remettre</b>`; }
+  if(photoMode){ cal.style.display='none'; const P=pose(), dd=wrap(P.heading-photoMode.dir0), pc=$('photoChip');
+    pc.innerHTML=`📷 photo${photoMode.date?' du '+photoMode.date.slice(0,10).replace(/:/g,'-'):''} · cap ${photoMode.dirTxt} → <b>${Math.round(P.heading)}°</b> (${dd>=0?'+':''}${dd.toFixed(1)}°) · horizon ${P.pitch>=0?'+':''}${P.pitch.toFixed(1)}° · champ ${S.camFov}° · <u>quitter</u>`; }
+  else if(S.headOff||S.pitchOff){ cal.style.display='block'; cal.innerHTML=`cap ${S.headOff>0?'+':''}${S.headOff.toFixed(0)}° · horizon ${S.pitchOff>0?'+':''}${S.pitchOff.toFixed(0)}°<b>remettre</b>`; }
   else cal.style.display='none';
   const fc=$('filt');
   if(S.filter){ fc.style.display='block'; fc.innerHTML=`filtre : ${S.filter.replace(/[<&]/g,'')}<b>effacer</b>`; }
@@ -4090,8 +4107,9 @@ function showTelecomSheet(t,grp){
     summary:x=>`${dEsc(x.nature||x.name)}${x.g5?' · 5G':''}</b> · ${dKm(x.dist)} km${x.height_m?` · ${x.height_m} m`:''}<br><span style="opacity:.75">${dEsc(x.address||x.place||'adresse inconnue')}${x.cp?' · '+dEsc(x.cp):''}${opsTxt(x)?' · '+dEsc(opsTxt(x)):''}</span><b>`,
     block:telecomBlock});
 }
-$('calib').addEventListener('click',()=>{S.headOff=0;S.pitchOff=0;saveSettings();});
-$('reset').addEventListener('click',()=>{S.headOff=0;S.pitchOff=0;saveSettings();});
+const calReset=()=>{ if(photoMode){ S.headOff=photoMode.dir0; S.pitchOff=0; return; } S.headOff=0; S.pitchOff=0; saveSettings(); };
+$('calib').addEventListener('click',calReset);
+$('reset').addEventListener('click',calReset);
 
 // ---------- réglages ----------
 // REGLAGES RANGES (23/10/2026) : sections depliables, resume d'une ligne sous chaque titre, aides derriere une pastille "?".
@@ -4383,10 +4401,10 @@ function fitHorizon(pts,P,cam0,tab){
 const PHOTO_EVERY=3000, PHOTO_FRESH=6000, PHOTO_TOL=0.5, PHOTO_WIN=0.7, PHOTO_SNAP=1.2;
 let photoSky=null, photoT=0;
 function grabFrameRGB(cw){
-  const vw=video.videoWidth, vh=video.videoHeight; if(!vw||!vh) return null;
+  const {el:src,w:vw,h:vh}=camSrc(); if(!vw||!vh) return null;
   const ch=Math.max(60,Math.round(cw*H/W)), oc=document.createElement('canvas'); oc.width=cw; oc.height=ch;
   const x=oc.getContext('2d',{willReadFrequently:true}), sc=Math.max(cw/vw,ch/vh), dw=vw*sc, dh=vh*sc;
-  x.drawImage(video,(cw-dw)/2,(ch-dh)/2,dw,dh); // meme recadrage que l'ecran
+  x.drawImage(src,(cw-dw)/2,(ch-dh)/2,dw,dh); // meme recadrage que l'ecran
   try{ return {d:x.getImageData(0,0,cw,ch).data,cw,ch}; }catch(e){ return null; } }
 function observeSkyline(fr,P,fh){ // -> {ok, skyFrac, cols:[{brg,a,top}]} ; a = angle (°) de la limite ciel / non-ciel
   const {d,cw,ch}=fr, k=cw/W, cx=W/2, cy=H/2, cr=Math.cos(P.roll*D), sr=Math.sin(P.roll*D);
@@ -4472,7 +4490,7 @@ function landmarkFit(ps){ // -> {ok, corr, cam, names, msg}
 }
 // un calage complet sur les reperes : jusqu'a 3 passes (chaque passe relit l'image avec le cap corrige)
 function landmarkAlign(frOverride){
-  if(!camOK&&!frOverride) return {ok:false,msg:'caméra indisponible'};
+  if(!camReady()&&!frOverride) return {ok:false,msg:'caméra indisponible'};
   let total=0, cam0=S.camFov, last=null;
   for(let k=0;k<3;k++){
     const P=pose(), fh=(W/2)/Math.tan(vFov()/2*D), fr=typeof frOverride==='function'?frOverride():frOverride||grabFrameRGB(240); if(!fr) return {ok:false,msg:'image caméra illisible'};
@@ -4504,12 +4522,12 @@ function photoCheck(c,aTop){
   return {vis,state,snap,sky:mn};
 }
 function grabFrame(cw){
-  const vw=video.videoWidth, vh=video.videoHeight; if(!vw||!vh) return null;
+  const {el:src,w:vw,h:vh}=camSrc(); if(!vw||!vh) return null;
   const ch=Math.max(60,Math.round(cw*H/W));
   const oc=document.createElement('canvas'); oc.width=cw; oc.height=ch;
   const x=oc.getContext('2d',{willReadFrequently:true});
   const sc=Math.max(cw/vw,ch/vh), dw=vw*sc, dh=vh*sc;
-  x.drawImage(video,(cw-dw)/2,(ch-dh)/2,dw,dh); // meme recadrage que l'ecran
+  x.drawImage(src,(cw-dw)/2,(ch-dh)/2,dw,dh); // meme recadrage que l'ecran
   let d; try{ d=x.getImageData(0,0,cw,ch).data; }catch(e){ return null; }
   const L=new Float32Array(cw*ch);
   for(let i=0,j=0;j<L.length;i+=4,j++) L[j]=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
@@ -4520,7 +4538,7 @@ function note(msg,ms){ const n=$('note'); if(!n) return; n.textContent=msg; n.st
 let aligning=false;
 async function runAutoAlign(){
   if(aligning) return 'calage deja en cours';
-  if(!camOK) return 'caméra indisponible';
+  if(!camReady()) return 'caméra indisponible';
   if(!pos) return 'GPS indisponible';
   aligning=true;
   try{
@@ -4693,6 +4711,54 @@ $('btnReload').onclick=()=>{dcForceT=Date.now()+90000; if(S.buildings){ building
   $('air').checked=S.air; $('sea').checked=S.sea; $('tel').checked=S.telecom; $('bld').checked=S.buildings;
   document.querySelector('.chips').classList.toggle('folded',S.chipsFold);
 })();
+// ---------- REJOUER UNE PHOTO ----------
+// Metadonnees JPEG (EXIF) : position GPS, direction de prise de vue, focale equivalente 24x36, date. Meme lecteur que la page de debug.
+function readExif(buf){
+  const v=new DataView(buf); if(v.byteLength<4||v.getUint16(0)!==0xFFD8) return null; let o=2;
+  while(o+4<v.byteLength){ const m=v.getUint16(o), len=v.getUint16(o+2); if(m===0xFFE1&&v.getUint32(o+4)===0x45786966) return exifTiff(v,o+10); if((m&0xFF00)!==0xFF00) break; o+=2+len; }
+  return null; }
+function exifTiff(v,t){
+  const le=v.getUint16(t)===0x4949, u16=p=>v.getUint16(p,le), u32=p=>v.getUint32(p,le), rat=p=>{ const d=u32(p+4); return d?u32(p)/d:0; };
+  const ifd=off=>{ const out={}, n=u16(t+off); for(let i=0;i<n;i++){ const e=t+off+2+i*12, tag=u16(e), type=u16(e+2), cnt=u32(e+4), sz=[0,1,1,2,4,8,1,1,2,4,8,4,8][type]||1, vo=cnt*sz>4?t+u32(e+8):e+8;
+      let val; if(type===2){ let s=''; for(let k=0;k<cnt-1;k++) s+=String.fromCharCode(v.getUint8(vo+k)); val=s.trim(); }
+      else if(type===3) val=cnt===1?u16(vo):Array.from({length:cnt},(_,k)=>u16(vo+2*k)); else if(type===4) val=u32(vo);
+      else if(type===5) val=cnt===1?rat(vo):Array.from({length:cnt},(_,k)=>rat(vo+8*k)); else if(type===1||type===7) val=v.getUint8(vo);
+      out[tag]=val; } return out; };
+  const i0=ifd(u32(t+4)), ex=i0[0x8769]?ifd(i0[0x8769]):{}, gps=i0[0x8825]?ifd(i0[0x8825]):{}, dms=a=>Array.isArray(a)?a[0]+a[1]/60+a[2]/3600:null;
+  const r={model:[i0[0x010F],i0[0x0110]].filter(Boolean).join(' '),date:ex[0x9003]||i0[0x0132]||'',f35:ex[0xA405]||null};
+  if(gps[2]&&gps[4]){ r.lat=dms(gps[2])*(gps[1]==='S'?-1:1); r.lon=dms(gps[4])*(gps[3]==='W'?-1:1); }
+  if(gps[0x11]!=null){ r.dir=gps[0x11]; r.dirRef=gps[0x10]; }
+  return r; }
+let lastGps=null;
+async function enterPhoto(f){
+  const info=$('photoInfo'); let ex=null; try{ ex=readExif(await f.arrayBuffer()); }catch(e){}
+  const pos0=ex&&ex.lat!=null?{lat:ex.lat,lon:ex.lon}:parseLatLon(S.simPos);
+  if(!pos0){ info.textContent='Pas de position GPS dans ce fichier (photo prise dans la galerie ? ouvrez-la par le gestionnaire de fichiers), ni de position simulée à utiliser.'; return; }
+  const img=$('photoBg'), url=URL.createObjectURL(f);
+  try{ await new Promise((ok,ko)=>{ img.onload=ok; img.onerror=ko; img.src=url; }); }catch(e){ URL.revokeObjectURL(url); info.textContent='Image illisible (format non pris en charge par le navigateur ?)'; return; }
+  const w=img.naturalWidth, hh=img.naturalHeight, backup=photoMode?photoMode.backup:{headOff:S.headOff,pitchOff:S.pitchOff,camFov:S.camFov};
+  if(photoMode) URL.revokeObjectURL(photoMode.url);
+  photoMode={img,w,h:hh,url,backup,...(ex||{})};
+  // focale equivalente 24x36 (definie sur la diagonale, 43,27 mm) -> angle du cote large de l'image = reglage "champ de la camera"
+  if(ex&&ex.f35){ const dd=2*Math.atan(43.27/2/ex.f35); S.camFov=Math.round(2*Math.atan(Math.tan(dd/2)*Math.max(w,hh)/Math.hypot(w,hh))/D*2)/2; const fv=$('fov'); if(fv) fv.value=S.camFov; showFov(); }
+  S.headOff=ex&&ex.dir!=null?ex.dir:0; S.pitchOff=0; photoMode.dir0=S.headOff;
+  photoMode.dirTxt=ex&&ex.dir!=null?`photo ${Math.round(ex.dir)}°${ex.dirRef==='M'?' (magn.)':''}`:'photo inconnu';
+  stopCamera(); video.hidden=true; img.hidden=false; $('photoChip').hidden=false;
+  onNewPos(pos0.lat,pos0.lon,5); citiesVer++;
+  const msg=`${ex&&ex.lat!=null?'position de la photo':'position simulée'} ${pos0.lat.toFixed(5)}, ${pos0.lon.toFixed(5)} · ${ex&&ex.dir!=null?'direction '+ex.dir.toFixed(0)+'°':'direction absente (0°) : glissez pour tourner'} · ${ex&&ex.f35?'focale '+ex.f35+' mm éq. → champ '+S.camFov+'°':'focale absente : champ inchangé'}${ex&&ex.model?' · '+ex.model:''}`;
+  info.textContent=msg; logNet('Photo rejouée',true,msg); $('sheet').classList.remove('open');
+  note('Photo rejouée : glissez pour corriger, « Caler auto » pour tester. Touchez le bandeau 📷 pour quitter.',6000);
+}
+function exitPhoto(){
+  if(!photoMode) return; Object.assign(S,photoMode.backup); const fv=$('fov'); if(fv) fv.value=S.camFov; showFov();
+  URL.revokeObjectURL(photoMode.url); photoMode=null; const img=$('photoBg'); img.hidden=true; img.removeAttribute('src'); video.hidden=false; $('photoChip').hidden=true; $('photoInfo').textContent='';
+  if(appStarted) startCamera();
+  if(S.simOn&&parseLatLon(S.simPos)) applySimPos(); else if(lastGps) onNewPos(...lastGps);
+  citiesVer++; logNet('Photo rejouée',true,'mode photo quitté : calage, champ et position rétablis');
+}
+$('btnPhoto').onclick=()=>$('photoFile').click();
+$('photoFile').onchange=e=>{ const f=e.target.files[0]; e.target.value=''; if(f) enterPhoto(f); };
+$('photoChip').onclick=exitPhoto;
 $('btnFold').addEventListener('click',()=>{ S.chipsFold=!S.chipsFold; document.querySelector('.chips').classList.toggle('folded',S.chipsFold); saveSettings(); });
 
 // ---------- photo ----------
@@ -4703,8 +4769,9 @@ $('shutter').onclick=()=>{
   const BAND=48;
   const c=document.createElement('canvas'); c.width=Math.round(W*dpr); c.height=Math.round((H+BAND)*dpr);
   const x=c.getContext('2d'); x.scale(dpr,dpr);
-  if(camOK&&video.videoWidth){ const s=Math.max(W/video.videoWidth,H/video.videoHeight), dw=video.videoWidth*s, dh=video.videoHeight*s;
-    x.save(); x.beginPath(); x.rect(0,0,W,H); x.clip(); x.drawImage(video,(W-dw)/2,(H-dh)/2,dw,dh); x.restore(); } else { x.fillStyle='#000'; x.fillRect(0,0,W,H); }
+  const cs=camSrc();
+  if(camReady()&&cs.w){ const s=Math.max(W/cs.w,H/cs.h), dw=cs.w*s, dh=cs.h*s;
+    x.save(); x.beginPath(); x.rect(0,0,W,H); x.clip(); x.drawImage(cs.el,(W-dw)/2,(H-dh)/2,dw,dh); x.restore(); } else { x.fillStyle='#000'; x.fillRect(0,0,W,H); }
   x.drawImage(ov,0,0,W,H);
   const near=visibleCities().filter(c=>SETTLE.has(c.kind)&&!c.far).reduce((a,c)=>(!a||c.dist<a.dist)?c:a,null); const {heading}=pose();
   const pres=near?(/^[aeiouyhàâäéèêëîïôöûüAEIOUYHÀÂÄÉÈÊËÎÏÔÖÛÜ]/.test(near.name)?"Près d'":'Près de ')+near.name:'';
@@ -4734,7 +4801,7 @@ function stopCamera(){
   video.srcObject=null; camOK=false;
 }
 async function startCamera(){
-  if(camStarting) return;
+  if(camStarting||photoMode) return;
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ camErr='Caméra indisponible : ouvrez la page en HTTPS'; return; }
   camStarting=true;
   try{
@@ -4765,7 +4832,7 @@ $('go').onclick=async()=>{
   await startCamera();
   if(navigator.geolocation){
     if(S.simOn&&parseLatLon(S.simPos)) applySimPos();
-    navigator.geolocation.watchPosition(p=>{ if(S.simOn&&parseLatLon(S.simPos)) return; onNewPos(p.coords.latitude,p.coords.longitude,p.coords.accuracy); },
+    navigator.geolocation.watchPosition(p=>{ lastGps=[p.coords.latitude,p.coords.longitude,p.coords.accuracy]; if(photoMode||(S.simOn&&parseLatLon(S.simPos))) return; onNewPos(p.coords.latitude,p.coords.longitude,p.coords.accuracy); },
       err=>{ setStatus('GPS refusé : '+err.message); }, {enableHighAccuracy:true,maximumAge:5000,timeout:20000});
   } else setStatus('GPS indisponible');
   startTraffic();
