@@ -436,7 +436,7 @@ const ENDPOINTS=['https://overpass.private.coffee/api/interpreter','https://maps
    OpenSky ; seuls les bateaux necessitent une cle. */
 const CONFIG=Object.assign({relay:''},window.APP_CONFIG||{});
 const CONFIG_LOADED=!!window.APP_CONFIG;
-const APP_VERSION='2026-10-25 (h) · bateaux : les plus proches nommés d\'abord, noms à plat en escalier sous l\'horizon, les autres regroupés « +N » ; aucun nom sous les boutons du bas · 2026-10-25 (g) · carnet de calage (chaque calage = une mesure, envoyée au relais), calage au doigt sur le soleil, « Reprendre l\'écart appris » · 2026-10-25 (f) · mémoire des bateaux et avions : relue dès le premier point GPS et dans les cases voisines · 2026-10-25 (e) · bateaux et avions : un nom par icône quand la place le permet (« +N » seulement faute de place) ; boutons Bateaux et Avions dans le menu Calques · 2026-10-25 (d) · hauteur des monuments dans l\'étiquette (↑72 m connue, ↑~45 m supposée) ; calage au doigt sur le sommet d\'un monument (cap + horizon si hauteur connue) ; photo rejouée : sans trafic en direct, chargements relancés au nouveau lieu · 2026-10-25 (c) · soleil : position exacte dessinée (☀), reflets écartés, heure de prise de vue fiable ; ville dense : plus d\'alignement des toits sur le relief · 2026-10-25 (b) · Caler auto : d\'abord le soleil s\'il est dans l\'image (cap et horizon exacts), horizon lu sans le premier plan (parasols, palmiers, personnes) · 2026-10-25 · photo rejouée : direction des photos horizontales du Pixel corrigée (+90°), banc d\'essai du calage auto · 2026-10-24 (b) · Réglages > Test et simulation : rejouer une photo (position, direction et focale lues dans le fichier, calques dessinés dessus, calage testable) · 2026-10-24 · calage : boussole + gyroscope (retour a la boussole si le gyroscope saute) ; reperes vus seulement dans Caler auto ; lecture photo en option (3 s) · 2026-10-23 (d) · reglages ranges en sections depliables (aides derriere "?"), pastille de reglage rapide du rayon, croix de visee en option · 2026-10-23 (c) · bateaux : couleur par type et rond a l\'arret facon MarineTraffic, fiche au toucher avec liens MarineTraffic / VesselFinder (avions : ADS-B Exchange / Flightradar24) · 2026-10-23 (b) · avions et bateaux : placement des noms generique (sans chevauchement), memoire d\'appareil ; croix de visee en mode KML · 2026-10-23 · bateaux : message clair quand AISStream est muet · 2026-10-22 (d) · cap stabilisé au gyroscope, calage automatique continu sur les repères vus (cap + zoom), règle de la photo étendue aux lieux · 2026-10-22 (c) · visibilité d\'après la photo : on ne nomme que ce que la caméra voit (silhouette réelle), nom calé sur la pointe visible · 2026-10-22 (b) · un monument caché derrière un plus proche (même direction) passe en Tout voir · 2026-10-22 · Turin : monuments posés sur le relief devant eux, crêtes filtrées, sonde dans l\'axe, priorité à ce qu\'on voit (bâtiments hauts OSM), relief 200 km et sommets lointains, calage du zoom, sol/étage, position simulée · 2026-10-21 · relief : secours AWS par tuile (Italie / hors Mapterhorn) · 2026-10-21 · zoom au pincement, 5 miroirs Overpass, structure BD TOPO · 2026-10-21 · repères/tours OSM en tuiles + tours ANFR, crêtes intérieures du relief · 2026-10-12 · tours et mâts télécom : même base OSM que les repères hauts (mât sans hauteur/opérateur inclus) · 2026-10-11 · taille maximale des silhouettes de monuments (30 % de l\'écran) pour garder le nom visible de près ; 2026-10-10 · monuments proches toujours nets (15 plus proches ≤ 1,5 km), mâts TDF sans priorité et nets seulement s\'ils dépassent la crête, diagnostic d\'affichage dans les fiches, nom d\'usage des tours sans nom (commentaire OSM) ; 2026-10-09 (g) · couches perso : champs lus de tous les tableaux KML, liste numérotée dans l\'ordre du fichier (n°2 = champ #2 du diagnostic), stockage compact, jusqu\'à 60 000 points ; 2026-10-09 (f) · UX : bouton plein écran atteignable (barre du bas transparente aux touchers, outils sur 2 colonnes en paysage, cibles 44 px, accueil en paysage) ; couches perso : diagnostic de structure KMZ/KML sans contenu ; 2026-10-09 (e) · couches perso : champ KML au choix (10 premiers caractères) et recherche de site en gras ; 2026-10-09 (d) · couches perso KMZ/KML (locales), zones tactiles et toucher unifiés (pylônes regroupés) ; 2026-10-09 (c) · cache générique pour toutes les couches (mémoire, secours périmé, Recharger), tours TDF/télécom dans les monuments avec liens ; 2026-10-09 (b) · fiches de groupe génériques, repères hauts en violet + mémoire, calques défilants ; 2026-10-09 · monuments posés sur la ligne de relief ; 2026-10-08 (b) · monuments : tout Wikidata par tuile de 0,1° (sans filtre de classe), tri monuments / équipements urbains dans l\'appli, nouvelles icônes';
+const APP_VERSION='2026-10-25 (i) · hauteur d\'œil relue dans le relief fin (remparts, falaises : la jetée ne cache plus Dinard) ; statues OpenStreetMap proches en monuments · 2026-10-25 (h) · bateaux : les plus proches nommés d\'abord, noms à plat en escalier sous l\'horizon, les autres regroupés « +N » ; aucun nom sous les boutons du bas · 2026-10-25 (g) · carnet de calage (chaque calage = une mesure, envoyée au relais), calage au doigt sur le soleil, « Reprendre l\'écart appris » · 2026-10-25 (f) · mémoire des bateaux et avions : relue dès le premier point GPS et dans les cases voisines · 2026-10-25 (e) · bateaux et avions : un nom par icône quand la place le permet (« +N » seulement faute de place) ; boutons Bateaux et Avions dans le menu Calques · 2026-10-25 (d) · hauteur des monuments dans l\'étiquette (↑72 m connue, ↑~45 m supposée) ; calage au doigt sur le sommet d\'un monument (cap + horizon si hauteur connue) ; photo rejouée : sans trafic en direct, chargements relancés au nouveau lieu · 2026-10-25 (c) · soleil : position exacte dessinée (☀), reflets écartés, heure de prise de vue fiable ; ville dense : plus d\'alignement des toits sur le relief · 2026-10-25 (b) · Caler auto : d\'abord le soleil s\'il est dans l\'image (cap et horizon exacts), horizon lu sans le premier plan (parasols, palmiers, personnes) · 2026-10-25 · photo rejouée : direction des photos horizontales du Pixel corrigée (+90°), banc d\'essai du calage auto · 2026-10-24 (b) · Réglages > Test et simulation : rejouer une photo (position, direction et focale lues dans le fichier, calques dessinés dessus, calage testable) · 2026-10-24 · calage : boussole + gyroscope (retour a la boussole si le gyroscope saute) ; reperes vus seulement dans Caler auto ; lecture photo en option (3 s) · 2026-10-23 (d) · reglages ranges en sections depliables (aides derriere "?"), pastille de reglage rapide du rayon, croix de visee en option · 2026-10-23 (c) · bateaux : couleur par type et rond a l\'arret facon MarineTraffic, fiche au toucher avec liens MarineTraffic / VesselFinder (avions : ADS-B Exchange / Flightradar24) · 2026-10-23 (b) · avions et bateaux : placement des noms generique (sans chevauchement), memoire d\'appareil ; croix de visee en mode KML · 2026-10-23 · bateaux : message clair quand AISStream est muet · 2026-10-22 (d) · cap stabilisé au gyroscope, calage automatique continu sur les repères vus (cap + zoom), règle de la photo étendue aux lieux · 2026-10-22 (c) · visibilité d\'après la photo : on ne nomme que ce que la caméra voit (silhouette réelle), nom calé sur la pointe visible · 2026-10-22 (b) · un monument caché derrière un plus proche (même direction) passe en Tout voir · 2026-10-22 · Turin : monuments posés sur le relief devant eux, crêtes filtrées, sonde dans l\'axe, priorité à ce qu\'on voit (bâtiments hauts OSM), relief 200 km et sommets lointains, calage du zoom, sol/étage, position simulée · 2026-10-21 · relief : secours AWS par tuile (Italie / hors Mapterhorn) · 2026-10-21 · zoom au pincement, 5 miroirs Overpass, structure BD TOPO · 2026-10-21 · repères/tours OSM en tuiles + tours ANFR, crêtes intérieures du relief · 2026-10-12 · tours et mâts télécom : même base OSM que les repères hauts (mât sans hauteur/opérateur inclus) · 2026-10-11 · taille maximale des silhouettes de monuments (30 % de l\'écran) pour garder le nom visible de près ; 2026-10-10 · monuments proches toujours nets (15 plus proches ≤ 1,5 km), mâts TDF sans priorité et nets seulement s\'ils dépassent la crête, diagnostic d\'affichage dans les fiches, nom d\'usage des tours sans nom (commentaire OSM) ; 2026-10-09 (g) · couches perso : champs lus de tous les tableaux KML, liste numérotée dans l\'ordre du fichier (n°2 = champ #2 du diagnostic), stockage compact, jusqu\'à 60 000 points ; 2026-10-09 (f) · UX : bouton plein écran atteignable (barre du bas transparente aux touchers, outils sur 2 colonnes en paysage, cibles 44 px, accueil en paysage) ; couches perso : diagnostic de structure KMZ/KML sans contenu ; 2026-10-09 (e) · couches perso : champ KML au choix (10 premiers caractères) et recherche de site en gras ; 2026-10-09 (d) · couches perso KMZ/KML (locales), zones tactiles et toucher unifiés (pylônes regroupés) ; 2026-10-09 (c) · cache générique pour toutes les couches (mémoire, secours périmé, Recharger), tours TDF/télécom dans les monuments avec liens ; 2026-10-09 (b) · fiches de groupe génériques, repères hauts en violet + mémoire, calques défilants ; 2026-10-09 · monuments posés sur la ligne de relief ; 2026-10-08 (b) · monuments : tout Wikidata par tuile de 0,1° (sans filtre de classe), tri monuments / équipements urbains dans l\'appli, nouvelles icônes';
 const S={cross:false,gyro:true,photoVis:false,simOn:false,simPos:'',radius:60,camFov:67,hamlets:false,relief:true,reliefV1:false,obsHeight:0,showDist:true,filter:'',headOff:0,pitchOff:0,air:false,sea:false,airMax:120,seaMax:40,skyline:false,ridges:true,beyond:false,telecom:false,telecomMax:8,buildings:false,buildingsMax:12,chipsFold:false,
   layers:{places:true,monuments:true,equip:true,urban:false,urbClip:true,urbSmooth:true,urbFill:true},
   poi:{lighthouse:true,cape:true,rock:true,view:false,heritage:false,beach:false}};
@@ -1369,6 +1369,18 @@ function assessPlace(T,c,ht,tol,peakTol){ // angles du lieu et verdict de visibi
 // Avec des donnees fines (~1 m en France), un seul point peut tomber sur un trottoir, un fosse
 // ou une legere ondulation locale et biaiser tout le masque de relief — la precision GPS
 // (quelques metres) ne justifie pas d'etre aussi precis exactement a cet endroit.
+// sol sous les pieds dans le relief FIN seulement (bande non garantie : modele de terrain IGN ~1 m en France, sans toits ni arbres) :
+// mediane de 9 points a ~5 m (precision GPS), NaN s'il n'y a pas de donnee fine ici
+// (seulement les vraies tuiles fines : pas celles reconstituees depuis AWS/SRTM, b.altIdx, qui sont un modele de surface 30 m)
+function fineGround(bands,c){
+  const b=bands.find(x=>!x.guaranteed); if(!b) return NaN;
+  const st=5/111320, sl=st/Math.max(0.2,Math.cos(c.lat*D)), v=[], full=b.ts*b.ts*4;
+  for(let i=-1;i<=1;i++) for(let j=-1;j<=1;j++){ const p=lonLatToPix(b.z,c.lat+i*st,c.lon+j*sl,b.ts), gx=Math.floor(p[0]), gy=Math.floor(p[1]);
+    const ix=(gx>>b.shift)-b.tx0, iy=(gy>>b.shift)-b.ty0, k=iy*b.nx+ix; if(ix<0||iy<0||ix>=b.nx||iy>=b.ny) continue;
+    const t=b.tiles[k]; if(!t||t.length<full||(b.altIdx&&b.altIdx.has(k))) continue;
+    const e=pixElev(b,gx,gy); if(e===e) v.push(e); }
+  if(v.length<5) return NaN; v.sort((a,b)=>a-b); return v[v.length>>1];
+}
 function localGroundElev(bands,c){
   const dLat=15/111320, dLon=dLat/Math.max(0.2,Math.cos(c.lat*D)); // ~15 m
   const pts=[[0,0],[dLat,0],[-dLat,0],[0,dLon],[0,-dLon]];
@@ -1470,7 +1482,7 @@ async function computeTerrain(force){
       const worker=async()=>{ while(next<jobs.length){ const j=jobs[next++];
         try{
           const r=await loadTileData(j.b.z,j.x,j.y,urlFn,j.b.ts,j.b.guaranteed);
-          j.b.tiles[j.idx]=r.data; if(r.fromCache) cached++; if(r.alt) altAws++;
+          j.b.tiles[j.idx]=r.data; if(r.fromCache) cached++; if(r.alt){ altAws++; (j.b.altIdx=j.b.altIdx||new Set()).add(j.idx); }
           if(r.missing){ if(r.sea) missingSea++; else missingHR++; }
         }catch(e){ failed++; if(j.b.guaranteed) failedGuaranteed++; }
         done++; reliefState=skylineState=`tuiles ${done}/${allJobs.length}`; } };
@@ -1503,10 +1515,12 @@ async function computeTerrain(force){
     { const b0=bands[0], p=!b0.guaranteed?lonLatToPix(b0.z,c.lat,c.lon,b0.ts):null, fine=p?pixElev(b0,Math.floor(p[0]),Math.floor(p[1])):NaN;
       if(!(fine===fine)){ const v=[], st=50/111320, sl=st/Math.max(0.2,Math.cos(c.lat*D));
         for(let i=-3;i<=3;i++) for(let j=-3;j<=3;j++){ if(i*i+j*j>9) continue; const e=elevAt(bands,c.lat+i*st,c.lon+j*sl,0.2,true); if(e===e) v.push(e); }
+        // 25/10/2026 (Saint-Malo, remparts) : la mer (0 m) n'est jamais le sol sous les pieds -> exclue quand il y a assez de terre autour
+        { const land=v.filter(e=>e>0.5); if(land.length>=8){ v.length=0; v.push(...land); } }
         if(v.length>=8){ v.sort((a,b)=>a-b); const lo=v[Math.floor(v.length*0.15)]; if(!(e0===e0)||lo<e0){ e0=lo; } obsGroundSrc='modèle 30 m (surface) : niveau de la rue estimé (bas des valeurs sur 150 m)'; } else obsGroundSrc='modèle 30 m'; } }
     obsGround=e0===e0?e0:0;
     // correction manuelle dans les deux sens (balcon +, sol surestime -), l'oeil jamais sous 1 m
-    const h0=Math.max(1,(e0===e0?e0:0)+1.6+S.obsHeight);
+    let h0=Math.max(1,(e0===e0?e0:0)+1.6+S.obsHeight);
     const src=S.reliefV1?'v1':(hrDown?'legacy':'mapterhorn');
     obsElev=h0-1.6; updateObsInfo();
 
@@ -1520,6 +1534,12 @@ async function computeTerrain(force){
       reliefState=skylineState='ok (relief lointain, affinage en cours…)';
       applyOcclusion(false);
       await runJobs(nearJobs); // 2e passe, en arriere-plan : le relief fin (proche)
+      // 25/10/2026 (Saint-Malo, sur les remparts : Dinard et toute la cote "caches par le relief") : le sol sous les pieds etait lu AVANT
+      // le chargement du relief fin, donc toujours dans le modele 30 m (surface), au 15e centile sur 150 m — au bord de la mer, le niveau
+      // de la mer : oeil a ~2 m au lieu de ~14 m, la jetee du Mole faisait l'horizon et cachait tout derriere. Maintenant, des que le relief
+      // fin (modele de TERRAIN, sans les toits) est la, le sol est relu dedans, au pied exact, et le masque est recalcule avec cet oeil.
+      { const ef=fineGround(bands,c);
+        if(ef===ef){ obsGroundSrc='relief fin : modèle de terrain sous vos pieds'; obsGround=ef; h0=Math.max(1,ef+1.6+S.obsHeight); obsElev=h0-1.6; updateObsInfo(); } }
       reliefState=skylineState='calcul…';
       pm=await computeMask(h0); // meme "bands" (mutees en place par la 2e passe) : pas de rechargement
     }
@@ -2260,6 +2280,7 @@ async function fillOsmEdits(){
         towerMonsKey=null; monumentSites=monCombine(); citiesVer++; recompute(); }
     }catch(e){ el.textContent='indisponible : '+friendlyErr(e); } }
 }
+let statueRaw=[], statueMons=[], statueKey=null; // statues OSM (voir OT_STATUE)
 let monBase=[], towerRaw=[], towerAt=null, towerBusy=false, towerErrAt=null, towerErrDelay=30000, towerMsg='', towerMons=[], towerMonsKey=null;
 const TW_TTL=30*86400000, TW_CELL=0.1, TW_TAGS=['name','name:fr','official_name','alt_name','operator','owner','brand','height','wikidata','wikipedia','website','contact:website','ref','tower:type','man_made','description'];
 const isTdf=t=>/(^|[^a-z])TDF([^a-z]|$)|t[ée]l[ée]diffusion/i.test([t.operator,t.owner,t.brand,t.name].filter(Boolean).join(' '));
@@ -2297,8 +2318,14 @@ function parseTowers(j){
 // en échec n'empêche pas les autres, les plus proches d'abord.
 //  - proche (<= F km) : tuiles de 0,1° x 0,14° (~11 km), tous les tours/mâts/châteaux d'eau/cheminées ;
 //  - lointain (F..R km) : tuiles de 0,3° x 0,42° (~33 km), seulement les vraies tours télécom (ce qu'on voit à cette distance).
-const OT_FAST_MS=9000, OT_TTL=14*86400000, OT_KEEP=[...TW_TAGS,'building:levels'], OT_NEAR=[0.1,0.14], OT_FAR=[0.3,0.42];
+const OT_FAST_MS=9000, OT_TTL=14*86400000, OT_KEEP=[...TW_TAGS,'building:levels','historic','memorial','tourism','artwork_type','subject'], OT_NEAR=[0.1,0.14], OT_FAR=[0.3,0.42];
 const OT_ALL='^(tower|communications_tower|water_tower|chimney|mast)$';
+// STATUES ET MONUMENTS COMMEMORATIFS (25/10/2026, Saint-Malo : la statue de Surcouf, a 30 m, absente — Wikidata ne garde que les monuments
+// connus dans 40 langues ou proteges) : repris d'OpenStreetMap dans les memes tuiles proches, s'ils ont un nom ; affiches comme monuments
+// jusqu'a STATUE_MAX_KM (de pres, ce sont d'excellents reperes de calage : on les vise par leur sommet).
+const OT_STATUE=bb=>`nwr["historic"="memorial"]["memorial"~"^(statue|bust|obelisk|column|sculpture)$"]["name"]${bb};nwr["tourism"="artwork"]["artwork_type"~"^(statue|bust|sculpture|obelisk)$"]["name"]${bb};nwr["historic"="monument"]["name"]${bb};`;
+const isStatueEl=e=>{ const t=e.tags||{}; return !t.man_made&&(t.historic==='memorial'||t.historic==='monument'||t.tourism==='artwork'); };
+const STATUE_MAX_KM=0.8, STATUE_DENSE_KM=0.3, STATUE_H={statue:8,bust:4,sculpture:6,obelisk:15,column:15,monument:10};
 function otParse(j){
   const out=[], seen=new Set();
   for(const n of (j.elements||[])){
@@ -2322,13 +2349,13 @@ function otTiles(g,fromKm,toKm){ // tuiles de la grille g dont la distance a la 
 }
 const otInflight=new Map();
 function otTile(t,full){
-  const key=`ot1/${full?'n':'f'}/${t.i},${t.j}`;
+  const key=full?`ot2/n/${t.i},${t.j}`:`ot1/f/${t.i},${t.j}`; // ot2 : tuiles proches avec les statues (25/10/2026)
   if(otInflight.has(key)) return otInflight.get(key);
   const bb=`(${t.s.toFixed(4)},${t.w.toFixed(4)},${t.n.toFixed(4)},${t.e.toFixed(4)})`;
   const q=full
-    ?`[out:json][timeout:20];nwr["man_made"~"${OT_ALL}"]${bb};out center qt;`
+    ?`[out:json][timeout:20];(nwr["man_made"~"${OT_ALL}"]${bb};${OT_STATUE(bb)});out center qt;`
     :`[out:json][timeout:25];(nwr["man_made"="communications_tower"]${bb};nwr["tower:type"="communication"]${bb};nwr["man_made"="mast"]["height"~"^([3-9][0-9]|[0-9]{3,})"]${bb};nwr["man_made"="tower"]["height"~"^([4-9][0-9]|[0-9]{3,})"]${bb};nwr["man_made"~"^(mast|tower)$"]["operator"~"TDF"]${bb};);out center qt;`;
-  const p=dcFetch('ot',key,{ttl:OT_TTL,prune:['ot1/',160],load:()=>overpassQuery(q,full?OT_FAST_MS:12000,otParse)}).finally(()=>otInflight.delete(key));
+  const p=dcFetch('ot',key,{ttl:OT_TTL,prune:[full?'ot2/':'ot1/',160],load:()=>overpassQuery(q,full?OT_FAST_MS:12000,otParse)}).finally(()=>otInflight.delete(key));
   otInflight.set(key,p); return p;
 }
 // objets OSM autour de la position : tuiles proches complètes jusqu'à F km, tuiles lointaines télécom jusqu'à R km.
@@ -2412,11 +2439,25 @@ function tallMonuments(){
   }
   return tallMons;
 }
+function statueMonuments(){
+  if(statueKey&&statueKey[0]===statueRaw&&statueKey[1]===monBase) return statueMons;
+  statueKey=[statueRaw,monBase]; statueMons=[];
+  const near=(a,b)=>Math.abs(a.lat-b.lat)<0.001&&Math.abs(a.lon-b.lon)<0.0015&&distBrg(a,b).dist<0.06;
+  for(const e of statueRaw){ const t=e.tags||{}, nm=(t['name:fr']||t.name||'').trim(); if(!nm) continue;
+    if(monBase.some(m=>m.cat!=='equip'&&near(m,e))) continue; // deja connu de Wikidata
+    const sub=t.historic==='monument'?'monument':(t.memorial||t.artwork_type||'statue'), h=parseFloat(t.height), hOk=isFinite(h)&&h>0&&h<120;
+    const what=sub==='bust'?'buste':sub==='obelisk'?'obélisque':sub==='column'?'colonne':sub==='monument'?'monument':sub==='sculpture'?'sculpture':'statue';
+    const name=new RegExp(what,'i').test(nm)?nm:`${nm} (${what})`;
+    statueMons.push({name,lat:e.lat,lon:e.lon,kind:'monument',cat:'monument',qid:null,src:'osms',osm:e.type+'/'+e.id,type:'colonne',unnamed:false,
+      links:MON_LOW_LINKS,prot:false,htWd:null,htOsm:hOk?h:null,ht:hOk?h:(STATUE_H[sub]||8),
+      types:`${what} (OpenStreetMap)`,why:`${what} repéré(e) dans OpenStreetMap (visible de près seulement)`}); }
+  return statueMons;
+}
 function monCombine(){
-  const tw=towerMonuments(), tall=tallMonuments(); if(!tw.length&&!tall.length) return monBase;
+  const tw=towerMonuments(), tall=tallMonuments(), st=statueMonuments(); if(!tw.length&&!tall.length&&!st.length) return monBase;
   const near=(a,b,km)=>Math.abs(a.lat-b.lat)<0.002&&Math.abs(a.lon-b.lon)<0.003&&distBrg(a,b).dist<km;
   const tw2=tw.filter(t=>!monBase.some(m=>m.cat!=='equip'&&near(m,t,0.15)));
-  return monBase.concat(tw2,tall.filter(t=>!tw2.some(o=>near(o,t,0.05))));
+  return monBase.concat(tw2,tall.filter(t=>!tw2.some(o=>near(o,t,0.05))),st);
 }
 async function loadTowers(force){
   if(!S.layers.monuments||!pos||towerBusy||document.hidden) return;
@@ -2425,7 +2466,7 @@ async function loadTowers(force){
   if(!force&&towerErrAt&&Date.now()-towerErrAt<towerErrDelay) return;
   towerBusy=true; towerMsg='recherche…'; const here={...pos};
   try{
-    const F=Math.min(12,R), show=els=>{ towerRaw=parseTowers({elements:els.map(e=>({type:e.type,id:e.id,lat:e.lat,lon:e.lon,tags:e.tags}))}); towerMonsKey=null; monumentSites=monCombine(); citiesVer++; recompute(); markBuildingDupes(); };
+    const F=Math.min(12,R), show=els=>{ statueRaw=els.filter(isStatueEl); towerRaw=parseTowers({elements:els.filter(e=>!isStatueEl(e)).map(e=>({type:e.type,id:e.id,lat:e.lat,lon:e.lon,tags:e.tags}))}); towerMonsKey=null; monumentSites=monCombine(); citiesVer++; recompute(); markBuildingDupes(); };
     const r=await otFetch(F,R,show); show(r.els);
     const n=towerMonuments().length, rd=towerRaw.length, skip=towerRaw.filter(t=>t.rel===false).length; towerMsg=`${n} tour(s)`+(r.ko?` · ${r.ko} tuile(s) manquante(s)`:'');
     const bad=r.ko>0&&!r.els.length;
@@ -2784,7 +2825,7 @@ function urbanDense(){ // ville dense autour de soi : grande ville (>= 100 000 h
   if(_denseV===citiesVer&&_dense!=null) return _dense;
   let v=false; if(pos){
     v=cities.some(c=>c.kind==='city'&&(c.pop||0)>=100000&&c.dist!=null&&c.dist<=6)
-      ||monumentSites.filter(m=>m.cat!=='equip'&&m.dist!=null&&m.dist<=2).length>=25
+      ||monumentSites.filter(m=>m.cat!=='equip'&&m.src!=='osms'&&m.dist!=null&&m.dist<=2).length>=25
       ||buildingSites.filter(b=>b.kind==='immeuble'&&b.dist!=null&&b.dist<=3).length>=15; }
   _dense=v; _denseV=citiesVer; return v; }
 const monVisAng=c=>Math.atan(Math.max(2,(c.ht||20)-(urbanDense()?CANOPY_H:0))/Math.max(50,(c.dist||0)*1000))/D;
@@ -2796,6 +2837,7 @@ function visibleCities(){
   const base=farPeaks.length?cities.concat(farPeaks):cities, src=msites.length?msites.concat(base):base;
   _visCache=src.filter(c=>{
     if(c.dist==null||c.dist>(c.farPeak?RELIEF_MAX_KM:S.radius)){ outRadius++; return false; }
+    if(c.src==='osms'&&c.dist>(urbanDense()?STATUE_DENSE_KM:STATUE_MAX_KM)){ outRadius++; return false; } // statue : de pres seulement
     if(c.kind==='monument'&&c.cat==='equip'){ // equipement urbain : visible de pres seulement (portee selon le type), icone au sol
       c.angH=Math.atan((c.ht||0)/Math.max(50,c.dist*1000))/D;
       c.far=c.dist>(EQUIP_MAXD[c.type]||EQUIP_MAX_KM);
@@ -2831,7 +2873,7 @@ function visibleCities(){
       if(!c.far&&!(S.relief&&terrain&&c.hidden)){
         const t=top(c), o=occ.find(o=>o.dist<c.dist*0.85&&Math.abs(wrap(c.brg-o.brg))<o.hw+MON_OCC_MARGIN&&t<o.top-0.05);
         if(o){ c.far=true; c.near=false; c.occBy=o.name; tooFarForKind++; farList.push(c); continue; } }
-      if(c.far||(S.relief&&terrain&&c.hidden)) continue;
+      if(c.far||(S.relief&&terrain&&c.hidden)||c.src==='osms') continue; // une statue est trop fine pour cacher ce qui est derriere
       occ.push({name:c.name,dist:c.dist,brg:c.brg,top:top(c),bot:base(c),hw:Math.atan2((MON_W[c.type]||20)/2,Math.max(30,c.dist*1000))/D}); } }
   // 22/10/2026 : la regle de la photo s'applique aussi aux LIEUX (quartiers, villes, sommets lointains caches derriere les facades)
   { const fresh=photoFresh(), eye=1.6+(S.obsHeight||0);
