@@ -223,6 +223,8 @@ video,#photoBg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover
     <label class="lySub"><svg viewBox="0 0 24 24" stroke="#78CDE8"><path d="M3 20h18M5 20v-5q7-9 14 0v5M9 20v-3q3-4 6 0v3"/></svg><span class="lyN">Équipements urbains<em id="lyInfoEq">stades, gares et métros, canaux, parcs, places, théâtres, ponts</em></span><input type="checkbox" id="lyEq"></label>
     <label><svg viewBox="0 0 24 24" stroke="#E85A5A"><path d="M8 21l3.2-15h1.6L16 21M9.6 14.5l5.2-3M14.4 14.5l-5.2-3M8.8 18l6.8-2.6M15.2 18l-6.8-2.6M12 6V2.5M10 3.5h4"/></svg><span class="lyN">Pylônes télécom<em id="lyInfoTel">ANFR, France — via le relais</em></span><input type="checkbox" id="lyTel"></label>
     <label><svg viewBox="0 0 24 24" stroke="#A98BFF"><path d="M6 21V8h7v13M13 12h5v9M8.5 11h2M8.5 14h2M8.5 17h2M15 15h1M15 18h1M9.5 8V4"/></svg><span class="lyN">Repères hauts<em id="lyInfoBld">tours, cheminées, châteaux d'eau (OSM)</em></span><input type="checkbox" id="lyBld"></label>
+    <label><svg viewBox="0 0 24 24" stroke="#7FE3C4"><path d="M3 16h18l-3 4H6zM12 3v12M12 4l6 9h-6M12 6l-5 7h5"/></svg><span class="lyN">Bateaux<em id="lyInfoSea">AIS, en direct — via le relais</em></span><input type="checkbox" id="lySea"></label>
+    <label><svg viewBox="0 0 24 24" stroke="#8FD3FF"><path d="M12 2.5c1 0 1.5 1 1.5 2.5v4.5l7.5 4.5v2l-7.5-2v4.5l2.5 2v1.5L12 21l-4 1v-1.5l2.5-2V14L3 16v-2l7.5-4.5V5c0-1.5.5-2.5 1.5-2.5z"/></svg><span class="lyN">Avions<em id="lyInfoAir">OpenSky, en direct</em></span><input type="checkbox" id="lyAir"></label>
     <label><svg viewBox="0 0 24 24" stroke="#C79BE8"><path d="M3 20V11h3V8h3v4h3V6h3v6h3V9h3v11z"/></svg><span class="lyN">Silhouette bâtiments<em id="lyInfoUrb">contour des immeubles (IGN BD TOPO) · France</em></span><input type="checkbox" id="lyUrb"></label>
     <label class="lySub"><span class="lyN">Premier plan masqué<em>ignore les bâtiments à moins de 150 m (rue en canyon)</em></span><input type="checkbox" id="lyUrbClip"></label>
     <label class="lySub"><span class="lyN">Silhouette lissée<em>effet skyline : comble les rues étroites et les creux</em></span><input type="checkbox" id="lyUrbSmooth"></label>
@@ -433,7 +435,7 @@ const ENDPOINTS=['https://overpass.private.coffee/api/interpreter','https://maps
    OpenSky ; seuls les bateaux necessitent une cle. */
 const CONFIG=Object.assign({relay:''},window.APP_CONFIG||{});
 const CONFIG_LOADED=!!window.APP_CONFIG;
-const APP_VERSION='2026-10-25 (c) · soleil : position exacte dessinée (☀), reflets écartés, heure de prise de vue fiable ; ville dense : plus d\'alignement des toits sur le relief · 2026-10-25 (b) · Caler auto : d\'abord le soleil s\'il est dans l\'image (cap et horizon exacts), horizon lu sans le premier plan (parasols, palmiers, personnes) · 2026-10-25 · photo rejouée : direction des photos horizontales du Pixel corrigée (+90°), banc d\'essai du calage auto · 2026-10-24 (b) · Réglages > Test et simulation : rejouer une photo (position, direction et focale lues dans le fichier, calques dessinés dessus, calage testable) · 2026-10-24 · calage : boussole + gyroscope (retour a la boussole si le gyroscope saute) ; reperes vus seulement dans Caler auto ; lecture photo en option (3 s) · 2026-10-23 (d) · reglages ranges en sections depliables (aides derriere "?"), pastille de reglage rapide du rayon, croix de visee en option · 2026-10-23 (c) · bateaux : couleur par type et rond a l\'arret facon MarineTraffic, fiche au toucher avec liens MarineTraffic / VesselFinder (avions : ADS-B Exchange / Flightradar24) · 2026-10-23 (b) · avions et bateaux : placement des noms generique (sans chevauchement), memoire d\'appareil ; croix de visee en mode KML · 2026-10-23 · bateaux : message clair quand AISStream est muet · 2026-10-22 (d) · cap stabilisé au gyroscope, calage automatique continu sur les repères vus (cap + zoom), règle de la photo étendue aux lieux · 2026-10-22 (c) · visibilité d\'après la photo : on ne nomme que ce que la caméra voit (silhouette réelle), nom calé sur la pointe visible · 2026-10-22 (b) · un monument caché derrière un plus proche (même direction) passe en Tout voir · 2026-10-22 · Turin : monuments posés sur le relief devant eux, crêtes filtrées, sonde dans l\'axe, priorité à ce qu\'on voit (bâtiments hauts OSM), relief 200 km et sommets lointains, calage du zoom, sol/étage, position simulée · 2026-10-21 · relief : secours AWS par tuile (Italie / hors Mapterhorn) · 2026-10-21 · zoom au pincement, 5 miroirs Overpass, structure BD TOPO · 2026-10-21 · repères/tours OSM en tuiles + tours ANFR, crêtes intérieures du relief · 2026-10-12 · tours et mâts télécom : même base OSM que les repères hauts (mât sans hauteur/opérateur inclus) · 2026-10-11 · taille maximale des silhouettes de monuments (30 % de l\'écran) pour garder le nom visible de près ; 2026-10-10 · monuments proches toujours nets (15 plus proches ≤ 1,5 km), mâts TDF sans priorité et nets seulement s\'ils dépassent la crête, diagnostic d\'affichage dans les fiches, nom d\'usage des tours sans nom (commentaire OSM) ; 2026-10-09 (g) · couches perso : champs lus de tous les tableaux KML, liste numérotée dans l\'ordre du fichier (n°2 = champ #2 du diagnostic), stockage compact, jusqu\'à 60 000 points ; 2026-10-09 (f) · UX : bouton plein écran atteignable (barre du bas transparente aux touchers, outils sur 2 colonnes en paysage, cibles 44 px, accueil en paysage) ; couches perso : diagnostic de structure KMZ/KML sans contenu ; 2026-10-09 (e) · couches perso : champ KML au choix (10 premiers caractères) et recherche de site en gras ; 2026-10-09 (d) · couches perso KMZ/KML (locales), zones tactiles et toucher unifiés (pylônes regroupés) ; 2026-10-09 (c) · cache générique pour toutes les couches (mémoire, secours périmé, Recharger), tours TDF/télécom dans les monuments avec liens ; 2026-10-09 (b) · fiches de groupe génériques, repères hauts en violet + mémoire, calques défilants ; 2026-10-09 · monuments posés sur la ligne de relief ; 2026-10-08 (b) · monuments : tout Wikidata par tuile de 0,1° (sans filtre de classe), tri monuments / équipements urbains dans l\'appli, nouvelles icônes';
+const APP_VERSION='2026-10-25 (e) · bateaux et avions : un nom par icône quand la place le permet (« +N » seulement faute de place) ; boutons Bateaux et Avions dans le menu Calques · 2026-10-25 (d) · hauteur des monuments dans l\'étiquette (↑72 m connue, ↑~45 m supposée) ; calage au doigt sur le sommet d\'un monument (cap + horizon si hauteur connue) ; photo rejouée : sans trafic en direct, chargements relancés au nouveau lieu · 2026-10-25 (c) · soleil : position exacte dessinée (☀), reflets écartés, heure de prise de vue fiable ; ville dense : plus d\'alignement des toits sur le relief · 2026-10-25 (b) · Caler auto : d\'abord le soleil s\'il est dans l\'image (cap et horizon exacts), horizon lu sans le premier plan (parasols, palmiers, personnes) · 2026-10-25 · photo rejouée : direction des photos horizontales du Pixel corrigée (+90°), banc d\'essai du calage auto · 2026-10-24 (b) · Réglages > Test et simulation : rejouer une photo (position, direction et focale lues dans le fichier, calques dessinés dessus, calage testable) · 2026-10-24 · calage : boussole + gyroscope (retour a la boussole si le gyroscope saute) ; reperes vus seulement dans Caler auto ; lecture photo en option (3 s) · 2026-10-23 (d) · reglages ranges en sections depliables (aides derriere "?"), pastille de reglage rapide du rayon, croix de visee en option · 2026-10-23 (c) · bateaux : couleur par type et rond a l\'arret facon MarineTraffic, fiche au toucher avec liens MarineTraffic / VesselFinder (avions : ADS-B Exchange / Flightradar24) · 2026-10-23 (b) · avions et bateaux : placement des noms generique (sans chevauchement), memoire d\'appareil ; croix de visee en mode KML · 2026-10-23 · bateaux : message clair quand AISStream est muet · 2026-10-22 (d) · cap stabilisé au gyroscope, calage automatique continu sur les repères vus (cap + zoom), règle de la photo étendue aux lieux · 2026-10-22 (c) · visibilité d\'après la photo : on ne nomme que ce que la caméra voit (silhouette réelle), nom calé sur la pointe visible · 2026-10-22 (b) · un monument caché derrière un plus proche (même direction) passe en Tout voir · 2026-10-22 · Turin : monuments posés sur le relief devant eux, crêtes filtrées, sonde dans l\'axe, priorité à ce qu\'on voit (bâtiments hauts OSM), relief 200 km et sommets lointains, calage du zoom, sol/étage, position simulée · 2026-10-21 · relief : secours AWS par tuile (Italie / hors Mapterhorn) · 2026-10-21 · zoom au pincement, 5 miroirs Overpass, structure BD TOPO · 2026-10-21 · repères/tours OSM en tuiles + tours ANFR, crêtes intérieures du relief · 2026-10-12 · tours et mâts télécom : même base OSM que les repères hauts (mât sans hauteur/opérateur inclus) · 2026-10-11 · taille maximale des silhouettes de monuments (30 % de l\'écran) pour garder le nom visible de près ; 2026-10-10 · monuments proches toujours nets (15 plus proches ≤ 1,5 km), mâts TDF sans priorité et nets seulement s\'ils dépassent la crête, diagnostic d\'affichage dans les fiches, nom d\'usage des tours sans nom (commentaire OSM) ; 2026-10-09 (g) · couches perso : champs lus de tous les tableaux KML, liste numérotée dans l\'ordre du fichier (n°2 = champ #2 du diagnostic), stockage compact, jusqu\'à 60 000 points ; 2026-10-09 (f) · UX : bouton plein écran atteignable (barre du bas transparente aux touchers, outils sur 2 colonnes en paysage, cibles 44 px, accueil en paysage) ; couches perso : diagnostic de structure KMZ/KML sans contenu ; 2026-10-09 (e) · couches perso : champ KML au choix (10 premiers caractères) et recherche de site en gras ; 2026-10-09 (d) · couches perso KMZ/KML (locales), zones tactiles et toucher unifiés (pylônes regroupés) ; 2026-10-09 (c) · cache générique pour toutes les couches (mémoire, secours périmé, Recharger), tours TDF/télécom dans les monuments avec liens ; 2026-10-09 (b) · fiches de groupe génériques, repères hauts en violet + mémoire, calques défilants ; 2026-10-09 · monuments posés sur la ligne de relief ; 2026-10-08 (b) · monuments : tout Wikidata par tuile de 0,1° (sans filtre de classe), tri monuments / équipements urbains dans l\'appli, nouvelles icônes';
 const S={cross:false,gyro:true,photoVis:false,simOn:false,simPos:'',radius:60,camFov:67,hamlets:false,relief:true,reliefV1:false,obsHeight:0,showDist:true,filter:'',headOff:0,pitchOff:0,air:false,sea:false,airMax:120,seaMax:40,skyline:false,ridges:true,beyond:false,telecom:false,telecomMax:8,buildings:false,buildingsMax:12,chipsFold:false,
   layers:{places:true,monuments:true,equip:true,urban:false,urbClip:true,urbSmooth:true,urbFill:true},
   poi:{lighthouse:true,cape:true,rock:true,view:false,heritage:false,beach:false}};
@@ -2741,6 +2743,7 @@ function mobiles(){
   const now=Date.now();
   if(now-_mobCacheAt<400) return _mobCache;
   const out=[];
+  if(photoMode) { _mobCache=[]; _mobCacheAt=now; return _mobCache; } // photo rejouee : le trafic en direct n'a rien a voir avec la prise de vue
   if(S.air) for(const p of planes){
     const s=dr(p), r=distBrg(pos,{lat:s.lat,lon:s.lon});
     if(r.dist>S.airMax) continue;
@@ -3315,7 +3318,9 @@ function draw(ts){
     ctx.font=`700 ${size}px ${FD}`;
     const lab=mon?monName(c):c.name;
     const nw=ctx.measureText(lab).width;
-    const altTxt=!mon&&c.ele!=null?Math.round(c.ele)+' m':'';
+    // 25/10/2026 (Saint-Malo : "il manque la hauteur pour savoir lequel est lequel") : un monument affiche sa hauteur, ↑72 m si elle est
+    // connue (Wikidata, OpenStreetMap), ↑~45 m si elle est supposee d'apres son type -> son sommet dessine peut etre trop haut ou trop bas.
+    const altTxt=!mon?(c.ele!=null?Math.round(c.ele)+' m':''):c.cat==='equip'||!(c.ht>0)?'':(c.htWd||c.htOsm)?`↑${Math.round(c.htWd||c.htOsm)} m`:`↑~${Math.round(c.ht)} m`;
     const distTxt=S.showDist?(c.dist<10?c.dist.toFixed(1):Math.round(c.dist))+' km':'';
     const dtxt=[altTxt,distTxt].filter(Boolean).join(' · ');
     ctx.font=`500 11px ${FM}`;
@@ -3535,39 +3540,48 @@ function draw(ts){
       ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore();
     } }
   const mobOrder=mobGroups.filter(g=>g.kind==='plane').concat(mobGroups.filter(g=>g.kind!=='plane').sort((a,b)=>Math.abs(b.x-W/2)-Math.abs(a.x-W/2)));
-  for(const g of mobOrder){
-    const air=g.kind==='plane', col=air?'#8FD3FF':'#7FE3C4', near=g.items[0].m, n=g.items.length;
+  // placement d'un nom de mobile (sans dessin) : bateau -> a plat sous l'horizon, en escalier ; avion -> incline. null si pas de place.
+  const mobSpec=(g,its)=>{ const air=g.kind==='plane', col=air?'#8FD3FF':'#7FE3C4', near=its[0].m, n=its.length, x=its[0].x, y=its[0].y;
     const lab=(near.name||'?')+(n>1?` +${n-1}`:'');
     const kn=near.vel*1.944, dist=S.showDist?fkm(near.dist)+' km':'';
     const extra=air?Math.round(near.alt*3.281/100)*100+' ft':(kn>=0.5?Math.round(kn)+' nd':''); // un bateau a quai n'affiche pas "0 nd"
     const dtxt=[extra,dist].filter(Boolean).join(' · ');
     const size=13; ctx.font=`700 ${size}px ${FD}`; const nw=ctx.measureText(lab).width;
     ctx.font=`500 11px ${FM}`; const dw=dtxt?ctx.measureText(dtxt).width:0;
-    const len=nw+(dtxt?dw+7:0)+4, x=g.items[0].x, y=g.items[0].y;
+    const len=nw+(dtxt?dw+7:0)+4;
     const slant=()=>placeSlanted({x,base:y,off:8,lift:9,len,padTop:size+2,padBot:3,side:x<W/2?-1:1,own:g,memKey:'mob|'+near.name});
     const flatP=()=>air?placeFlat({x,y0:y-12,halfW:8,w:len,size,own:g,dir:-1}):(()=>{ const out=x<W/2?-1:1, o={x,y0:y+size+12,halfW:-8,w:len,size,own:g,dir:1,maxK:24,anchorY:y+8};
       return placeFlat({...o,sides:[out]})||placeFlat({...o,sides:[-out]}); })(); // vers l'exterieur sur toutes les lignes d'abord (escalier)
     let ps=null, fl=null;
     if(air){ ps=slant(); if(!ps) fl=flatP(); } else { fl=flatP(); if(!fl) ps=slant(); }
-    const xs=g.items.map(it=>it.x), ys=g.items.map(it=>it.y), icon=[Math.min(...xs)-9,Math.max(...xs)+9,Math.min(...ys)-9,Math.max(...ys)+9];
-    const hit={t:near,g:g.items.map(it=>it.m),roll,icon,poly:null}; mobHits.push(hit);
-    if(fl) hit.poly=[[fl.x-2,fl.y-size-2],[fl.x+fl.w+2,fl.y-size-2],[fl.x+fl.w+2,fl.y+4],[fl.x-2,fl.y+4]];
-    else if(ps){ const pl=placed[placed.length-1]; hit.poly=pl&&pl[4]; }
+    if(!fl&&!ps) return null;
+    return {air,col,near,its,x,y,lab,dtxt,nw,size,fl,ps,poly:ps?(placed[placed.length-1]||[])[4]:null}; };
+  const mobDraw=s=>{ const {air,col,x,y,lab,dtxt,nw,size,fl,ps}=s;
     if(fl){ // nom a plat : fil de l'icone au bord du nom le plus proche
       const ex=air?(fl.side>0?fl.x-2:fl.x+fl.w+2):x, ey=air?fl.y-size*0.35:fl.y-size-1; // bateau : fil vertical (couloir reserve)
       ctx.strokeStyle=col; ctx.globalAlpha=.7; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x,y+(air?-7:7)); ctx.lineTo(ex,ey); ctx.stroke(); ctx.globalAlpha=1;
       ctx.textAlign='left'; ctx.font=`700 ${size}px ${FD}`; ctx.strokeStyle='rgba(14,26,43,.9)'; ctx.lineWidth=3.5;
       ctx.strokeText(lab,fl.x,fl.y); ctx.fillStyle=col; ctx.fillText(lab,fl.x,fl.y);
       if(dtxt){ ctx.font=`500 11px ${FM}`; ctx.lineWidth=3; ctx.strokeText(dtxt,fl.x+nw+7,fl.y); ctx.fillStyle='rgba(224,165,38,1)'; ctx.fillText(dtxt,fl.x+nw+7,fl.y); }
-      continue; }
-    if(!ps) continue; // pas de place : l'icone seule reste (comme un monument)
+      return; }
     const sgn=ps.side;
     ctx.strokeStyle=col; ctx.globalAlpha=.8; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x,y-7); ctx.lineTo(ps.lx,ps.ly); ctx.stroke(); ctx.globalAlpha=1;
     ctx.save(); ctx.translate(ps.lx,ps.ly); ctx.rotate(-sgn*ANG_LBL); ctx.textAlign=sgn>0?'left':'right';
     ctx.font=`700 ${size}px ${FD}`; ctx.strokeStyle='rgba(14,26,43,.9)'; ctx.lineWidth=3.5;
     ctx.strokeText(lab,0,0); ctx.fillStyle=col; ctx.fillText(lab,0,0);
     if(dtxt){ ctx.font=`500 11px ${FM}`; ctx.lineWidth=3; const dx=sgn*(nw+7); ctx.strokeText(dtxt,dx,0); ctx.fillStyle='rgba(224,165,38,1)'; ctx.fillText(dtxt,dx,0); }
-    ctx.restore(); ctx.textAlign='left';
+    ctx.restore(); ctx.textAlign='left'; };
+  const mobHit=(s,its)=>{ const xs=its.map(it=>it.x), ys=its.map(it=>it.y), icon=[Math.min(...xs)-9,Math.max(...xs)+9,Math.min(...ys)-9,Math.max(...ys)+9];
+    const hit={t:its[0].m,g:its.map(it=>it.m),roll,icon,poly:null}; mobHits.push(hit); if(!s) return;
+    if(s.fl) hit.poly=[[s.fl.x-2,s.fl.y-s.size-2],[s.fl.x+s.fl.w+2,s.fl.y-s.size-2],[s.fl.x+s.fl.w+2,s.fl.y+4],[s.fl.x-2,s.fl.y+4]]; else hit.poly=s.poly; };
+  // 25/10/2026 ("quand on n'affiche que les bateaux, pas de +1") : des icones qui se touchent sont d'abord nommees UNE PAR UNE ; le
+  // regroupement "NOM +N" n'est garde que si la place manque pour tous les noms du groupe.
+  for(const g of mobOrder){
+    if(g.items.length>1){ const p0=placed.length, sorted=g.items.slice().sort((a,b)=>Math.abs(b.x-W/2)-Math.abs(a.x-W/2)), specs=[];
+      for(const it of sorted){ const s=mobSpec(g,[it]); if(!s) break; specs.push(s); }
+      if(specs.length===sorted.length){ for(const s of specs){ mobHit(s,s.its); mobDraw(s); } continue; }
+      placed.length=p0; }
+    const s=mobSpec(g,g.items); mobHit(s,g.items); if(s) mobDraw(s); // pas de place : l'icone seule reste (comme un monument)
   }
   // SOLEIL CALCULE (25/10/2026) : sa position exacte a l'heure (direct) ou a l'heure de la prise de vue (photo rejouee). Quand le calage est
   // juste, le symbole est pose sur le soleil de l'image : c'est la reponse de reference, independante de la boussole et des donnees.
@@ -3930,20 +3944,28 @@ $('btnPoint').onclick=()=>setPointMode(!pointMode);
 // (comparaison sur le relevement reel, independant de tout calage actuel — donc valable meme si le
 // lieu est actuellement mal affiche a l'ecran, ce qui est justement le probleme a corriger), et
 // corrige le cap (S.headOff) pour que ce lieu s'affiche desormais exactement a l'endroit touche.
+// CALAGE AU DOIGT (25/10/2026, Saint-Malo : toucher la fleche de la cathedrale calait sur un lieu voisin, les monuments n'etaient pas candidats).
+// Candidats : tout ce qui est affiche (lieux ET monuments). Un monument se vise par son SOMMET : le plus proche du point touche, en
+// direction ET en hauteur, l'emporte. Si sa hauteur est connue (Wikidata/OSM), le cap ET l'horizon sont corriges ; sinon le cap seul, et
+// la note donne la hauteur que le point touche implique (utile pour verifier ou completer la donnee).
 function pointCalibrate(px,py){
   const P=pose(), fh=(W/2)/Math.tan(vFov()/2*D), cx=W/2, cy=H/2, dx=px-cx, dy=py-cy, r=P.roll*D;
-  const lx=cx+dx*Math.cos(r)+dy*Math.sin(r); // repere compense du roulis, comme le rendu (voir draw())
-  const brgTap=(P.heading+Math.atan((lx-cx)/fh)/D+360)%360;
-  let best=null, bestDiff=999;
-  for(const c of cities){
-    if(c.dist==null||c.brg==null||c.dist>S.radius) continue;
-    const diff=Math.abs(wrap(c.brg-brgTap));
-    if(diff<bestDiff){ bestDiff=diff; best=c; }
-  }
-  if(!best||bestDiff>12){ note('aucun lieu connu proche de cet endroit : visez un repère plus net, ou vérifiez son nom dans Réglages'); return null; }
-  const corr=wrap(best.brg-brgTap);
-  S.headOff+=corr; saveSettings(); noteCalib();
-  note(`calé sur « ${best.name} » (${best.dist.toFixed(1)} km) · cap corrigé de ${corr>=0?'+':''}${corr.toFixed(1)}°`);
+  const lx=cx+dx*Math.cos(r)+dy*Math.sin(r), ly=cy-dx*Math.sin(r)+dy*Math.cos(r); // repere compense du roulis, comme le rendu (voir draw())
+  const brgTap=(P.heading+Math.atan((lx-cx)/fh)/D+360)%360, elTap=P.pitch-Math.atan((ly-cy)/fh)/D, eye=1.6+(S.obsHeight||0);
+  const topOf=c=>c.aP!=null&&S.relief&&terrain?c.aP:Math.atan2((c.ht||20)-eye,Math.max(30,c.dist*1000))/D;
+  let best=null, bestS=1e9;
+  for(const c of visibleCities()){
+    if(c.dist==null||c.brg==null||c.far||(S.relief&&terrain&&c.hidden)) continue;
+    const mon=c.kind==='monument'&&c.cat!=='equip', db=Math.abs(wrap(c.brg-brgTap)); if(db>12) continue;
+    const s=mon?Math.hypot(db,0.5*(elTap-topOf(c))):db+1.5; // a ecart egal, un monument vise par son sommet passe devant un lieu
+    if(s<bestS){ bestS=s; best=c; } }
+  if(!best){ note('aucun lieu ni monument connu près de cet endroit : visez un repère plus net, ou vérifiez son nom dans Réglages'); return null; }
+  const corr=wrap(best.brg-brgTap), mon=best.kind==='monument'&&best.cat!=='equip', known=mon&&(best.htWd||best.htOsm)&&best.dist>=0.15;
+  S.headOff+=corr; let txt=`cap ${corr>=0?'+':''}${corr.toFixed(1)}°`;
+  if(known){ const dp=topOf(best)-elTap; S.pitchOff+=dp; txt+=` · horizon ${dp>=0?'+':''}${dp.toFixed(1)}° (sommet à ${Math.round(best.htWd||best.htOsm)} m)`; }
+  else if(mon){ const hImp=eye+Math.tan(elTap*D)*best.dist*1000; if(hImp>3&&hImp<400) txt+=` · hauteur inconnue : le point touché implique ≈ ${Math.round(hImp)} m (si l'horizon est juste)`; }
+  saveSettings(); noteCalib(); citiesVer++;
+  note(`calé sur « ${mon?monName(best):best.name} » (${best.dist.toFixed(1)} km) · ${txt}`,7000);
   return best;
 }
 // une case tactile est enregistree dans le repere compense du roulis (voir la boucle de rendu) :
@@ -4317,7 +4339,15 @@ $('crs').onchange=e=>{ S.cross=e.target.checked; saveSettings(); };
 $('phv').onchange=e=>{ S.photoVis=e.target.checked; photoSky=null; citiesVer++; saveSettings(); };
 $('rdg').onchange=e=>{S.ridges=e.target.checked;saveSettings();};
 // POSITION (GPS ou simulee) : un seul point d'entree
-function onNewPos(lat,lon,accuracy){ pos={lat,lon}; acc=accuracy; recompute(); loadCities(false); computeTerrain(false); if(telWanted()) pollTelecom(); if(S.buildings) pollBuildings(); if(S.layers.monuments) loadMonuments(false); if(S.layers.urban) loadUrban(false); }
+// 25/10/2026 (photo d'Ibiza rejouee depuis Saint-Malo : tours et immeubles absents) : un chargement en cours pour l'ancienne position, ou une
+// attente apres un echec reseau, faisait sauter celui du nouveau lieu. Apres un SAUT (> 3 km), les attentes d'echec sont remises a zero et
+// tous les chargements sont relances toutes les 3 s pendant 1 min : chacun s'ignore lui-meme s'il couvre deja le lieu (sans cout).
+let catchUpT=null;
+function catchUp(){ clearInterval(catchUpT); let n=0;
+  telecomErrAt=monErrAt=towerErrAt=urbErrAt=buildingsErrAt=null;
+  catchUpT=setInterval(()=>{ if(++n>20||!pos){ clearInterval(catchUpT); return; }
+    loadCities(false); computeTerrain(false); if(telWanted()) pollTelecom(); if(S.buildings) pollBuildings(); if(S.layers.monuments) loadMonuments(false); if(S.layers.urban) loadUrban(false); },3000); }
+function onNewPos(lat,lon,accuracy){ const jump=pos&&distBrg(pos,{lat,lon}).dist>3; pos={lat,lon}; acc=accuracy; if(jump) catchUp(); recompute(); loadCities(false); computeTerrain(false); if(telWanted()) pollTelecom(); if(S.buildings) pollBuildings(); if(S.layers.monuments) loadMonuments(false); if(S.layers.urban) loadUrban(false); }
 function parseLatLon(s){ s=String(s||''); const m=/@(-?\d{1,2}\.\d+),\s*(-?\d{1,3}\.\d+)/.exec(s)||/(-?\d{1,2}(?:[.,]\d+)?)\s*[,; ]\s*(-?\d{1,3}(?:[.,]\d+)?)/.exec(s);
   if(!m) return null; const lat=parseFloat(m[1].replace(',','.')), lon=parseFloat(m[2].replace(',','.'));
   return isFinite(lat)&&isFinite(lon)&&Math.abs(lat)<=90&&Math.abs(lon)<=180?{lat,lon}:null; }
@@ -4753,12 +4783,14 @@ function syncLayersPanel(){
   $('lyPlaces').checked=S.layers.places; $('lyMon').checked=S.layers.monuments; $('lyEq').checked=S.layers.equip!==false; $('lyEq').closest('label').style.display=S.layers.monuments?'':'none'; $('lyUrb').checked=!!S.layers.urban; $('lyUrbClip').checked=S.layers.urbClip!==false; for(const id of ['lyUrbClip','lyUrbSmooth','lyUrbFill']) $(id).closest('label').style.display=S.layers.urban?'':'none';
   $('lyUrbSmooth').checked=S.layers.urbSmooth!==false; $('lyUrbFill').checked=S.layers.urbFill!==false;
   $('lyInfoUrb').textContent=S.layers.urban?(urbMsg||'en attente')+retryHint(urbErrAt,urbErrDelay):'contour des immeubles (IGN BD TOPO) · France';
-  $('lyTel').checked=S.telecom; $('lyBld').checked=S.buildings;
+  $('lyTel').checked=S.telecom; $('lyBld').checked=S.buildings; $('lySea').checked=S.sea; $('lyAir').checked=S.air;
+  $('lyInfoSea').textContent=photoMode?'masqués sur une photo rejouée (trafic d\'aujourd\'hui)':S.sea?(tMsg.sea||'en attente'):'AIS, en direct — via le relais';
+  $('lyInfoAir').textContent=photoMode?'masqués sur une photo rejouée (trafic d\'aujourd\'hui)':S.air?(tMsg.air||'en attente'):'OpenSky, en direct';
   $('lyInfoEq').textContent=S.layers.monuments&&monStats.nEq!=null?`${monStats.nEq} chargé(s) dans ${EQUIP_RADIUS_KM} km · affichés de près (≤ ${EQUIP_MAX_KM} km)`:'stades, gares et métros, canaux, parcs, places, théâtres, ponts';
   $('lyInfoMon').textContent=S.layers.monuments&&monMsg?`${monumentSites.length} chargé(s) · ${monMsg}`:'lieux emblématiques (Wikipédia)';
   $('lyInfoTel').textContent=!relayBase()?'relais requis (config.js)':S.telecom?(tMsg2.telecom||'en attente')+(infraStats.iconOnly?` · ${infraStats.iconOnly} en icône seule`:''):'ANFR, France — via le relais';
   $('lyInfoBld').textContent=S.buildings?(bMsg.buildings||'en attente'):"tours, cheminées, châteaux d'eau (OSM)";
-  const nonDef=!S.layers.places||!S.layers.monuments||S.layers.equip===false||S.telecom||S.buildings||S.layers.urban;
+  const nonDef=!S.layers.places||!S.layers.monuments||S.layers.equip===false||S.telecom||S.buildings||S.layers.urban||S.sea||S.air;
   $('btnLayers').classList.toggle('on',nonDef);
 }
 function setLayersOpen(o){ $('layers').classList.toggle('open',o); $('btnLayers').setAttribute('aria-expanded',String(o)); if(o) syncLayersPanel(); }
@@ -4772,6 +4804,9 @@ $('lyUrbClip').onchange=e=>{ S.layers.urbClip=e.target.checked; saveSettings(); 
 $('lyUrbSmooth').onchange=e=>{ S.layers.urbSmooth=e.target.checked; saveSettings(); urbSmoothLayers(); };
 $('lyUrbFill').onchange=e=>{ S.layers.urbFill=e.target.checked; saveSettings(); };
 $('lyTel').onchange=e=>{ $('tel').checked=e.target.checked; $('tel').onchange({target:$('tel')}); if(S.telecom) pollTelecom(); syncLayersPanel(); };
+// bateaux et avions : memes reglages que dans Reglages > Calques en direct (un seul etat, on rejoue l'evenement de la case)
+$('lySea').onchange=e=>{ $('sea').checked=e.target.checked; $('sea').onchange({target:$('sea')}); syncLayersPanel(); };
+$('lyAir').onchange=e=>{ $('air').checked=e.target.checked; $('air').onchange({target:$('air')}); syncLayersPanel(); };
 $('lyBld').onchange=e=>{ $('bld').checked=e.target.checked; $('bld').onchange({target:$('bld')}); if(S.buildings) pollBuildings(); syncLayersPanel(); };
 syncLayersPanel();
 $('btnReload').onclick=()=>{dcForceT=Date.now()+90000; if(S.buildings){ buildingsAt=null; buildingsErrAt=null; pollBuildings(); } if(typeof loadTowers==='function') loadTowers(true); loadCities(true);computeTerrain(true);if(S.layers.monuments) loadMonuments(true); if(telWanted()){ telBypass=true; telecomAt=null; telecomErrAt=null; pollTelecom(); } if(S.layers.urban){ urbTiles.clear(); loadUrban(true); }};
